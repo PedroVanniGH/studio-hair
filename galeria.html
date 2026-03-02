@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Galería de Trabajos — Studio Hair</title>
+  <meta name="description" content="Galería de transformaciones reales de Studio Hair: cortes, coloraciones, balayage, peinados. Resultados que hablan por sí solos.">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .lightbox-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,.92);
+      z-index: 9999; display: none; align-items: center; justify-content: center;
+    }
+    .lightbox-backdrop.open { display: flex; }
+    .lightbox-img { max-width: 90vw; max-height: 85vh; object-fit: contain; border-radius: 8px; }
+    .lightbox-close {
+      position: fixed; top: 20px; right: 24px; font-size: 2rem; color: #fff;
+      cursor: pointer; z-index: 10000; background: none; border: none;
+    }
+    .lightbox-caption {
+      position: fixed; bottom: 24px; color: rgba(255,255,255,.8);
+      font-size: .95rem; text-align: center; width: 100%;
+    }
+  </style>
+</head>
+<body>
+<div id="header-mount"></div>
+<main>
+
+  <div class="page-hero">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Ubicación"><a href="index.html">Inicio</a><span>›</span><span>Galería</span></nav>
+      <h1>Galería de trabajos</h1>
+      <p>Cada imagen es el resultado del talento de nuestro equipo y la confianza de nuestros clientes.</p>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="container">
+      <div class="service-filter" role="toolbar" aria-label="Filtrar galería" style="margin-bottom:32px">
+        <button class="filter-btn active" onclick="filterGallery('all',this)">Todos</button>
+        <span id="gallery-filters"></span>
+      </div>
+      <div class="gallery-grid" id="gallery-grid"></div>
+    </div>
+  </section>
+
+  <div class="lightbox-backdrop" id="lightbox" role="dialog" aria-modal="true" aria-label="Visor de imagen">
+    <button class="lightbox-close" onclick="closeLightbox()" aria-label="Cerrar imagen">✕</button>
+    <img src="" alt="" class="lightbox-img" id="lightbox-img">
+    <div class="lightbox-caption" id="lightbox-caption"></div>
+  </div>
+
+</main>
+<div id="footer-mount"></div>
+<div id="cta-float-mount"></div>
+<div id="cookie-mount"></div>
+<div id="toast-mount"></div>
+<script src="js/data.js"></script>
+<script src="js/components.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    Components.init("galeria");
+
+    const cats = [...new Set(SH.gallery.map(g => g.category))];
+    const catLabels = { color:"Color", corte:"Cortes", barber:"Barber", tratamiento:"Tratamientos", peinado:"Peinados", unas:"Uñas", local:"Local" };
+    document.getElementById("gallery-filters").innerHTML = cats.map(c =>
+      `<button class="filter-btn" onclick="filterGallery('${c}',this)">${catLabels[c] || c}</button>`
+    ).join("");
+
+    renderGallery("all");
+  });
+
+  function filterGallery(cat, btn) {
+    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    renderGallery(cat);
+  }
+
+  function renderGallery(cat) {
+    const items = cat === "all" ? SH.gallery : SH.gallery.filter(g => g.category === cat);
+    document.getElementById("gallery-grid").innerHTML = items.map((g, idx) => `
+      <div class="gallery-item" onclick="openLightbox('${g.image}','${g.title}')"
+        tabindex="0" role="button" aria-label="Ver ${g.title}"
+        onkeydown="if(event.key==='Enter')openLightbox('${g.image}','${g.title}')">
+        <img src="${g.image}" alt="${g.title}" loading="lazy" width="400" height="500">
+        <div class="gallery-item-overlay"><span>${g.title}</span></div>
+      </div>`).join("");
+  }
+
+  function openLightbox(src, caption) {
+    document.getElementById("lightbox-img").src = src;
+    document.getElementById("lightbox-img").alt = caption;
+    document.getElementById("lightbox-caption").textContent = caption;
+    document.getElementById("lightbox").classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+  function closeLightbox() {
+    document.getElementById("lightbox").classList.remove("open");
+    document.body.style.overflow = "";
+  }
+  document.addEventListener("keydown", e => { if (e.key === "Escape") closeLightbox(); });
+  document.getElementById("lightbox")?.addEventListener("click", function(e) {
+    if (e.target === this) closeLightbox();
+  });
+</script>
+</body>
+</html>

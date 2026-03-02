@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Servicios — Studio Hair Buenos Aires</title>
+  <meta name="description" content="Conocé todos los servicios de Studio Hair: cortes, coloración, balayage, keratina, barber, peinados y más. Precios desde y duración de cada servicio.">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div id="header-mount"></div>
+<main>
+
+  <div class="page-hero">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Ubicación"><a href="index.html">Inicio</a><span>›</span><span>Servicios</span></nav>
+      <h1>Nuestros servicios</h1>
+      <p>Todo lo que tu cabello necesita, en manos expertas.</p>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="container">
+      <!-- Filtros -->
+      <div class="service-filter" role="toolbar" aria-label="Filtrar por categoría">
+        <button class="filter-btn active" data-cat="todos" onclick="filterServices('todos',this)">Todos</button>
+        <span id="cat-filters"></span>
+      </div>
+      <!-- Grid -->
+      <div class="grid-3" id="services-grid"></div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section-sm" style="background:var(--c-black);text-align:center">
+    <div class="container">
+      <h2 style="font-family:var(--font-head);font-size:2rem;font-weight:800;color:#fff;margin-bottom:12px">¿No encontrás lo que buscás?</h2>
+      <p style="color:rgba(255,255,255,.7);margin-bottom:28px">Escribinos por WhatsApp y te ayudamos a armar el servicio perfecto para vos.</p>
+      <a href="https://wa.me/5491145678900" target="_blank" rel="noopener" class="btn btn-gold btn-lg">💬 Escribinos por WhatsApp</a>
+    </div>
+  </section>
+
+</main>
+<div id="footer-mount"></div>
+<div id="cta-float-mount"></div>
+<div id="cookie-mount"></div>
+<div id="toast-mount"></div>
+
+<script src="js/data.js"></script>
+<script src="js/components.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    Components.init("servicios");
+
+    // Render category filter buttons
+    document.getElementById("cat-filters").innerHTML = SH.categories.map(c => `
+      <button class="filter-btn" data-cat="${c.id}" onclick="filterServices('${c.id}',this)">
+        ${c.icon} ${c.label}
+      </button>`).join("");
+
+    renderServices("todos");
+  });
+
+  function filterServices(cat, btn) {
+    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    renderServices(cat);
+  }
+
+  function renderServices(cat) {
+    const services = cat === "todos" ? SH.services.filter(s => s.active) : SH.services.filter(s => s.category === cat && s.active);
+    const grid = document.getElementById("services-grid");
+    if (!services.length) {
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">✂</div><h3>Sin servicios en esta categoría</h3><p>Consultanos por WhatsApp para más opciones.</p></div>`;
+      return;
+    }
+    grid.innerHTML = services.map(s => `
+      <article class="card" id="${s.category}">
+        <img src="${s.image}" alt="${s.name}" class="card-img" loading="lazy" width="400" height="250">
+        <div class="card-body">
+          <span class="card-badge">${Utils.getCategoryLabel(s.category)}</span>
+          ${s.popular ? '<span class="badge badge-popular" style="margin-left:6px">Popular</span>' : ''}
+          <h2 class="card-title">${s.name}</h2>
+          <p class="card-text">${s.description}</p>
+          <p class="card-price">Desde ${Utils.formatPrice(s.price)}</p>
+          <div class="service-duration">⏱ <span>${s.duration} min</span></div>
+        </div>
+        <div class="card-footer">
+          <a href="reservar.html" class="btn btn-primary btn-sm btn-full">Reservar este servicio</a>
+        </div>
+      </article>`).join("");
+  }
+</script>
+</body>
+</html>

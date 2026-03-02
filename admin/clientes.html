@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clientes — Studio Hair Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+<div class="admin-layout">
+  <div id="sidebar-mount"></div>
+  <header class="admin-topbar" role="banner">
+    <div class="topbar-title">CRM Clientes</div>
+    <div class="topbar-actions">
+      <div class="topbar-user"><div class="topbar-avatar" aria-hidden="true">A</div><span>Admin</span></div>
+    </div>
+  </header>
+  <main class="admin-main">
+    <div class="admin-page">
+      <div class="admin-page-header">
+        <div><h1>Clientes</h1><p>Base de datos de todos los clientes registrados.</p></div>
+      </div>
+
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <h3 id="customers-count">Clientes</h3>
+          <div class="search-input-wrap">
+            <svg fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+            <input type="search" class="search-input" id="search-customer" placeholder="Buscar por nombre, email..." aria-label="Buscar cliente" oninput="Admin.renderCustomers(this.value)">
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" aria-label="Lista de clientes">
+            <thead>
+              <tr><th>Cliente</th><th>Email</th><th>Teléfono</th><th>Turnos</th><th>Último turno</th><th>Acciones</th></tr>
+            </thead>
+            <tbody id="customers-tbody">
+              <tr><td colspan="6" style="text-align:center;padding:32px;color:var(--c-muted)">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal historial cliente -->
+<div class="modal-backdrop" id="modal-customer-detail" role="dialog" aria-modal="true" aria-labelledby="customer-detail-title">
+  <div class="modal" style="max-width:680px">
+    <div class="modal-header">
+      <h3 id="customer-detail-title">Historial del cliente</h3>
+      <button class="modal-close" onclick="Admin.closeModal('modal-customer-detail')" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="modal-body" id="customer-detail-body"></div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="Admin.closeModal('modal-customer-detail')">Cerrar</button></div>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container" aria-live="polite"></div>
+<script src="../js/data.js"></script>
+<script src="../js/admin.js"></script>
+<script src="shared.js"></script>
+<script>
+  Admin.requireAuth();
+  const customers = Store.getCustomers();
+  document.getElementById("customers-count").textContent = `Clientes (${customers.length})`;
+  Admin.renderCustomers();
+</script>
+</body>
+</html>

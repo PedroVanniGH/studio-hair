@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Promociones — Studio Hair Buenos Aires</title>
+  <meta name="description" content="Descubrí las promociones activas de Studio Hair. Descuentos en cortes, coloración, keratina y más. Combos especiales con hasta 20% OFF.">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div id="header-mount"></div>
+<main>
+  <div class="page-hero">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Ubicación"><a href="index.html">Inicio</a><span>›</span><span>Promociones</span></nav>
+      <h1>Promociones</h1>
+      <p>Aprovechá nuestras ofertas exclusivas antes de que se acaben.</p>
+    </div>
+  </div>
+  <section class="section">
+    <div class="container">
+      <h2 style="font-family:var(--font-head);font-size:1.5rem;font-weight:800;margin-bottom:24px">Promos activas</h2>
+      <div class="grid-3" id="active-promos"></div>
+      <hr class="divider">
+      <h2 style="font-family:var(--font-head);font-size:1.2rem;font-weight:700;margin-bottom:20px;color:var(--c-muted)">Promos finalizadas</h2>
+      <div class="grid-3" id="inactive-promos"></div>
+    </div>
+  </section>
+</main>
+<div id="footer-mount"></div>
+<div id="cta-float-mount"></div>
+<div id="cookie-mount"></div>
+<div id="toast-mount"></div>
+<script src="js/data.js"></script>
+<script src="js/components.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    Components.init("promociones");
+    const promoCard = (pr, expired = false) => `
+      <article class="promo-card ${expired ? 'opacity-60' : ''}" style="${expired ? 'opacity:.6;filter:grayscale(.4)' : ''}">
+        <div class="promo-card-bg" style="background-image:url(${pr.image})" role="img" aria-label="${pr.title}"></div>
+        <div class="promo-card-overlay" aria-hidden="true"></div>
+        <div class="promo-card-body">
+          <span class="promo-discount">${pr.discount}% OFF</span>
+          <h3 class="promo-card-title">${pr.title}</h3>
+          <p class="promo-card-desc">${pr.description}</p>
+          <p style="font-size:.82rem;color:rgba(255,255,255,.7);margin-bottom:12px">
+            Precio original: ${Utils.formatPrice(pr.original_price)} →
+            <strong style="color:var(--c-gold)">${Utils.formatPrice(pr.promo_price)}</strong>
+          </p>
+          ${!expired ? `<a href="reservar.html" class="btn btn-gold btn-sm">Aprovechar promo</a>` : `<span style="background:rgba(255,255,255,.2);color:#fff;padding:6px 14px;border-radius:var(--radius-sm);font-size:.85rem">Promo finalizada</span>`}
+          <div class="promo-code">🏷 ${pr.code}</div>
+          <div class="promo-dates">Válido: ${pr.start.split("-").reverse().join("/")} al ${pr.end.split("-").reverse().join("/")}</div>
+        </div>
+      </article>`;
+
+    const active   = SH.promotions.filter(p => p.active);
+    const inactive = SH.promotions.filter(p => !p.active);
+    document.getElementById("active-promos").innerHTML   = active.length   ? active.map(p => promoCard(p)).join("")   : `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🎉</div><h3>Próximamente nuevas promos</h3><p>Seguinos en Instagram para no perderte ninguna.</p></div>`;
+    document.getElementById("inactive-promos").innerHTML = inactive.length ? inactive.map(p => promoCard(p, true)).join("") : "";
+  });
+</script>
+</body>
+</html>

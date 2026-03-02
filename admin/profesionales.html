@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profesionales — Studio Hair Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+<div class="admin-layout">
+  <div id="sidebar-mount"></div>
+  <header class="admin-topbar" role="banner">
+    <div class="topbar-title">Profesionales</div>
+    <div class="topbar-actions">
+      <div class="topbar-user"><div class="topbar-avatar" aria-hidden="true">A</div><span>Admin</span></div>
+    </div>
+  </header>
+  <main class="admin-main">
+    <div class="admin-page">
+      <div class="admin-page-header">
+        <div><h1>Profesionales</h1><p>Equipo de trabajo de todas las sucursales.</p></div>
+      </div>
+
+      <!-- Cards de profesionales -->
+      <div id="staff-admin-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px"></div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal detalle profesional -->
+<div class="modal-backdrop" id="modal-staff-detail" role="dialog" aria-modal="true" aria-labelledby="staff-detail-title">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="staff-detail-title">Perfil del profesional</h3>
+      <button class="modal-close" onclick="Admin.closeModal('modal-staff-detail')" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="modal-body" id="staff-detail-body"></div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="Admin.closeModal('modal-staff-detail')">Cerrar</button></div>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container" aria-live="polite"></div>
+<script src="../js/data.js"></script>
+<script src="../js/admin.js"></script>
+<script src="shared.js"></script>
+<script>
+  Admin.requireAuth();
+
+  const allApts = Store.getAppointments();
+
+  document.getElementById("staff-admin-grid").innerHTML = SH.staff.filter(p => p.active).map(p => {
+    const branch   = Utils.getBranchById(p.branch_id);
+    const pApts    = allApts.filter(a => a.staff_id === p.id && !["cancelado"].includes(a.status));
+    const initials = p.name.split(" ").map(n => n[0]).slice(0,2).join("").toUpperCase();
+    return `
+    <div class="admin-card" style="cursor:pointer" onclick="viewStaff('${p.id}')">
+      <div style="padding:20px;display:flex;gap:14px;align-items:flex-start">
+        <img src="${p.image}" alt="${p.name}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;object-position:top;flex-shrink:0">
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:.98rem">${p.name}</div>
+          <div style="font-size:.82rem;color:var(--c-gold);margin-bottom:4px">${p.role}</div>
+          <div style="font-size:.8rem;color:var(--c-muted)">📍 ${branch?.name?.replace('Studio Hair ','') || '—'}</div>
+          <div style="display:flex;gap:8px;margin-top:8px;font-size:.82rem">
+            <span style="color:var(--c-gold)">★ ${p.rating}</span>
+            <span style="color:var(--c-muted)">(${p.reviews} reseñas)</span>
+            <span style="color:var(--c-muted)">· ${pApts.length} turnos</span>
+          </div>
+        </div>
+        <span class="badge badge-active">Activo</span>
+      </div>
+      <div style="padding:0 20px 16px;display:flex;gap:6px;flex-wrap:wrap">
+        ${p.specialties.map(sp => `<span style="background:var(--c-bg);border:1px solid var(--c-border);border-radius:100px;padding:2px 10px;font-size:.75rem;color:var(--c-muted)">${sp}</span>`).join("")}
+      </div>
+    </div>`;
+  }).join("");
+
+  function viewStaff(id) {
+    const p = SH.staff.find(s => s.id === id);
+    if (!p) return;
+    const branch = Utils.getBranchById(p.branch_id);
+    const pApts  = allApts.filter(a => a.staff_id === p.id);
+    const body = document.getElementById("staff-detail-body");
+    body.innerHTML = `
+      <div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:20px">
+        <img src="${p.image}" alt="${p.name}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;object-position:top">
+        <div>
+          <h3 style="font-family:var(--font-head);font-weight:700;font-size:1.2rem">${p.name}</h3>
+          <div style="color:var(--c-gold);font-size:.9rem;margin-bottom:4px">${p.role}</div>
+          <div style="font-size:.85rem;color:var(--c-muted)">📍 ${branch?.name || '—'}</div>
+          <div style="font-size:.85rem;color:var(--c-muted)">📸 ${p.instagram}</div>
+        </div>
+      </div>
+      <p style="font-size:.92rem;color:var(--c-muted);margin-bottom:16px">${p.bio}</p>
+      <p style="font-size:.88rem;margin-bottom:8px"><strong>Especialidades:</strong> ${p.specialties.join(", ")}</p>
+      <p style="font-size:.88rem;margin-bottom:4px"><strong>Rating:</strong> ★ ${p.rating} (${p.reviews} reseñas)</p>
+      <p style="font-size:.88rem;margin-bottom:20px"><strong>Total de turnos registrados:</strong> ${pApts.length}</p>
+      <p style="font-size:.88rem"><strong>Servicios habilitados:</strong></p>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+        ${p.services.map(sid => {const s=Utils.getServiceById(sid);return s?`<span style="background:var(--c-bg);border:1px solid var(--c-border);border-radius:100px;padding:3px 10px;font-size:.78rem">${s.name}</span>`:'';}).join("")}
+      </div>`;
+    Admin.openModal("modal-staff-detail");
+  }
+</script>
+</body>
+</html>

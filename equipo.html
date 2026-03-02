@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nuestro Equipo — Studio Hair Buenos Aires</title>
+  <meta name="description" content="Conocé al equipo de profesionales de Studio Hair. Estilistas, coloristas y barberos especializados en Palermo y Villa Crespo, Buenos Aires.">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div id="header-mount"></div>
+<main>
+
+  <div class="page-hero">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Ubicación"><a href="index.html">Inicio</a><span>›</span><span>Equipo</span></nav>
+      <h1>Nuestro equipo</h1>
+      <p>Profesionales apasionados que ponen su talento al servicio de tu estilo.</p>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="container">
+      <!-- Filtro por sucursal -->
+      <div class="service-filter" role="toolbar" aria-label="Filtrar por sucursal" style="margin-bottom:36px">
+        <button class="filter-btn active" onclick="filterStaff('todos',this)">Todos</button>
+        <span id="branch-filter-btns"></span>
+      </div>
+      <div class="grid-4" id="staff-grid"></div>
+    </div>
+  </section>
+
+  <!-- CTA Reserva -->
+  <section class="section-sm" style="background:var(--c-bg)">
+    <div class="container" style="text-align:center">
+      <h2 style="font-family:var(--font-head);font-size:1.8rem;font-weight:800;margin-bottom:10px">¿Tenés tu profesional favorito?</h2>
+      <p style="color:var(--c-muted);margin-bottom:24px">Al reservar online podés elegir con quién querés atenderte.</p>
+      <a href="reservar.html" class="btn btn-primary btn-lg">✂ Reservar con mi profesional</a>
+    </div>
+  </section>
+
+</main>
+<div id="footer-mount"></div>
+<div id="cta-float-mount"></div>
+<div id="cookie-mount"></div>
+<div id="toast-mount"></div>
+<script src="js/data.js"></script>
+<script src="js/components.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    Components.init("equipo");
+
+    // Branch filters
+    document.getElementById("branch-filter-btns").innerHTML = SH.branches.map(b => `
+      <button class="filter-btn" onclick="filterStaff('${b.id}',this)">${b.name.replace('Studio Hair ','')}</button>`).join("");
+
+    renderStaff("todos");
+  });
+
+  function filterStaff(branchId, btn) {
+    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    renderStaff(branchId);
+  }
+
+  function renderStaff(branchId) {
+    const staff = branchId === "todos"
+      ? SH.staff.filter(s => s.active)
+      : SH.staff.filter(s => s.active && s.branch_id === branchId);
+    const grid = document.getElementById("staff-grid");
+    if (!staff.length) {
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">👤</div><h3>Sin profesionales en esta sucursal.</h3></div>`;
+      return;
+    }
+    grid.innerHTML = staff.map(p => {
+      const branch = Utils.getBranchById(p.branch_id);
+      return `
+      <article class="card staff-card">
+        <img src="${p.image}" alt="Foto de ${p.name}" class="card-img" style="aspect-ratio:3/4;object-fit:cover;object-position:top" loading="lazy">
+        <div class="card-body">
+          <h2 class="card-title">${p.name}</h2>
+          <p style="font-size:.85rem;color:var(--c-gold);font-weight:600;margin-bottom:8px">${p.role}</p>
+          <p class="card-text" style="font-size:.85rem">${p.bio}</p>
+          <div class="staff-specialty" style="margin-top:10px">
+            ${p.specialties.map(sp => `<span>${sp}</span>`).join("")}
+          </div>
+          <div class="staff-rating" style="margin-top:10px">
+            <div class="stars" aria-label="${p.rating} de 5 estrellas">${Utils.renderStars(p.rating)}</div>
+            <strong>${p.rating}</strong>
+            <span style="font-size:.8rem;color:var(--c-muted)">(${p.reviews} reseñas)</span>
+          </div>
+          <p style="font-size:.8rem;color:var(--c-muted);margin-top:8px">📍 ${branch?.name || ""}</p>
+        </div>
+        <div class="card-footer">
+          <a href="reservar.html" class="btn btn-primary btn-sm btn-full">Reservar con ${p.name.split(' ')[0]}</a>
+        </div>
+      </article>`;
+    }).join("");
+  }
+</script>
+</body>
+</html>

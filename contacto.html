@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contacto — Studio Hair Buenos Aires</title>
+  <meta name="description" content="Contactá a Studio Hair por email, WhatsApp o formulario. Respondemos consultas sobre servicios, precios, eventos y novias.">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div id="header-mount"></div>
+<main>
+  <div class="page-hero">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Ubicación"><a href="index.html">Inicio</a><span>›</span><span>Contacto</span></nav>
+      <h1>Contactanos</h1>
+      <p>¿Tenés una consulta? Estamos para ayudarte.</p>
+    </div>
+  </div>
+  <section class="section">
+    <div class="container">
+      <div class="contact-grid">
+        <!-- Formulario -->
+        <div>
+          <h2 style="font-family:var(--font-head);font-size:1.5rem;font-weight:800;margin-bottom:24px">Envianos un mensaje</h2>
+          <form id="contact-form" novalidate>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+              <div class="form-group">
+                <label class="form-label" for="c-name">Nombre y apellido *</label>
+                <input type="text" id="c-name" class="form-control" placeholder="Tu nombre" required>
+                <div class="form-error">Campo requerido.</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="c-phone">Teléfono</label>
+                <input type="tel" id="c-phone" class="form-control" placeholder="Ej: 11 4567-8900">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="c-email">Email *</label>
+              <input type="email" id="c-email" class="form-control" placeholder="tu@email.com" required>
+              <div class="form-error">Ingresá un email válido.</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="c-motivo">Motivo de contacto *</label>
+              <select id="c-motivo" class="form-control" required>
+                <option value="">Seleccioná el motivo</option>
+                <option>Consulta sobre servicios</option>
+                <option>Presupuesto para evento</option>
+                <option>Paquete de novia / quinceañera</option>
+                <option>Reclamo o sugerencia</option>
+                <option>Trabajo en Studio Hair</option>
+                <option>Otro</option>
+              </select>
+              <div class="form-error">Seleccioná un motivo.</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="c-msg">Mensaje *</label>
+              <textarea id="c-msg" class="form-control" rows="5" placeholder="Escribí tu consulta acá..." required></textarea>
+              <div class="form-error">Escribí tu mensaje.</div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg btn-full" id="contact-submit">Enviar mensaje</button>
+          </form>
+        </div>
+
+        <!-- Info de contacto -->
+        <div>
+          <h2 style="font-family:var(--font-head);font-size:1.5rem;font-weight:800;margin-bottom:24px">Información de contacto</h2>
+
+          <div style="display:flex;flex-direction:column;gap:20px;margin-bottom:36px">
+            <div style="display:flex;gap:14px;align-items:flex-start">
+              <div style="width:44px;height:44px;background:var(--c-gold);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0">📍</div>
+              <div>
+                <div style="font-weight:700;margin-bottom:4px">Palermo</div>
+                <div style="color:var(--c-muted);font-size:.9rem">Thames 1650, Palermo, CABA</div>
+                <a href="tel:+541145678900" style="font-size:.9rem;color:var(--c-gold)">+54 11 4567-8900</a>
+              </div>
+            </div>
+            <div style="display:flex;gap:14px;align-items:flex-start">
+              <div style="width:44px;height:44px;background:var(--c-gold);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0">📍</div>
+              <div>
+                <div style="font-weight:700;margin-bottom:4px">Villa Crespo</div>
+                <div style="color:var(--c-muted);font-size:.9rem">Av. Corrientes 4820, Villa Crespo, CABA</div>
+                <a href="tel:+541148912233" style="font-size:.9rem;color:var(--c-gold)">+54 11 4891-2233</a>
+              </div>
+            </div>
+            <div style="display:flex;gap:14px;align-items:flex-start">
+              <div style="width:44px;height:44px;background:var(--c-gold);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0">📧</div>
+              <div>
+                <div style="font-weight:700;margin-bottom:4px">Email general</div>
+                <a href="mailto:hola@studiohair.com.ar" style="font-size:.9rem;color:var(--c-gold)">hola@studiohair.com.ar</a>
+              </div>
+            </div>
+            <div style="display:flex;gap:14px;align-items:flex-start">
+              <div style="width:44px;height:44px;background:#25D366;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0">💬</div>
+              <div>
+                <div style="font-weight:700;margin-bottom:4px">WhatsApp (respuesta rápida)</div>
+                <a href="https://wa.me/5491145678900" target="_blank" rel="noopener" class="btn" style="background:#25D366;color:#fff;margin-top:6px">Escribinos por WhatsApp</a>
+              </div>
+            </div>
+          </div>
+
+          <div style="background:var(--c-bg);border:1px solid var(--c-border);border-radius:var(--radius);padding:20px">
+            <h3 style="font-family:var(--font-head);font-weight:700;margin-bottom:12px">Horarios de atención</h3>
+            <p style="font-size:.9rem;color:var(--c-muted)">Lunes a Viernes: 9:00 a 20:00 hs</p>
+            <p style="font-size:.9rem;color:var(--c-muted)">Sábados: 9:00 a 19:00 hs</p>
+            <p style="font-size:.9rem;color:var(--c-muted)">Domingos: Cerrado</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<div id="footer-mount"></div>
+<div id="cta-float-mount"></div>
+<div id="cookie-mount"></div>
+<div id="toast-mount"></div>
+<script src="js/data.js"></script>
+<script src="js/components.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    Components.init("contacto");
+    document.getElementById("contact-form").addEventListener("submit", function(e) {
+      e.preventDefault();
+      let valid = true;
+      const name   = document.getElementById("c-name");
+      const email  = document.getElementById("c-email");
+      const motivo = document.getElementById("c-motivo");
+      const msg    = document.getElementById("c-msg");
+      const btn    = document.getElementById("contact-submit");
+
+      [name, email, motivo, msg].forEach(el => el.classList.remove("error"));
+
+      if (!name.value.trim())  { name.classList.add("error");  valid = false; }
+      if (!email.value.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) { email.classList.add("error"); valid = false; }
+      if (!motivo.value)       { motivo.classList.add("error"); valid = false; }
+      if (!msg.value.trim())   { msg.classList.add("error");   valid = false; }
+
+      if (!valid) { Components.toast("Por favor completá todos los campos requeridos.", "error"); return; }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="loading-spinner"></span> Enviando...';
+      setTimeout(() => {
+        Components.toast("¡Mensaje enviado! Te respondemos a la brevedad.", "success");
+        this.reset();
+        btn.disabled = false;
+        btn.textContent = "Enviar mensaje";
+      }, 1200);
+    });
+  });
+</script>
+</body>
+</html>

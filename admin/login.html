@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login — Studio Hair</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+<main class="login-page">
+  <div class="login-card">
+    <div class="login-logo">✂ Studio <span>Hair</span><small>Panel de administración</small></div>
+    <div class="login-error" id="login-error" role="alert" aria-live="polite"></div>
+    <form id="login-form" novalidate>
+      <div class="form-group">
+        <label class="form-label" for="admin-email">Email</label>
+        <input type="email" id="admin-email" class="form-control" placeholder="admin@studiohair.com.ar" autocomplete="email" required value="admin@studiohair.com.ar">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="admin-password">Contraseña</label>
+        <input type="password" id="admin-password" class="form-control" placeholder="••••••••" autocomplete="current-password" required value="admin123">
+      </div>
+      <button type="submit" class="btn btn-primary btn-full" id="login-btn" style="margin-top:8px">Ingresar al panel</button>
+    </form>
+    <p style="text-align:center;margin-top:20px;font-size:.82rem;color:var(--c-muted)">
+      Credenciales por defecto: admin@studiohair.com.ar / admin123
+    </p>
+    <div style="text-align:center;margin-top:16px">
+      <a href="../index.html" style="font-size:.82rem;color:var(--c-muted)">← Volver al sitio público</a>
+    </div>
+  </div>
+  <div class="toast-container" id="toast-container" aria-live="polite"></div>
+</main>
+
+<script src="../js/data.js"></script>
+<script src="../js/admin.js"></script>
+<script>
+  // Si ya está logueado, redirigir
+  if (Store.isAdminLoggedIn()) window.location.href = "dashboard.html";
+
+  document.getElementById("login-form").addEventListener("submit", Admin.login.bind(Admin));
+</script>
+</body>
+</html>
