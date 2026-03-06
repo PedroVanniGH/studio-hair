@@ -37,6 +37,7 @@ const Components = {
       ${navLinks}
     </nav>
     <div class="header-actions">
+      <span id="header-user-area"></span>
       <a href="${base}reservar.html" class="btn btn-primary btn-sm">Reservar turno</a>
       <button class="hamburger" id="hamburger" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobile-menu">
         <span></span><span></span><span></span>
@@ -47,6 +48,7 @@ const Components = {
 <nav class="mobile-menu" id="mobile-menu" aria-label="Menú móvil">
   <a href="${indexHref}">Inicio</a>
   ${nav.map(n => `<a href="${isAdmin ? n.href : n.href.replace("../", "")}">${n.label}</a>`).join("")}
+  <span id="mobile-user-area"></span>
   <a href="${base}reservar.html" class="btn btn-primary btn-sm" style="margin-top:8px">✂ Reservar turno</a>
 </nav>`;
   },
@@ -208,6 +210,29 @@ const Components = {
     });
   },
 
+  async initAuth() {
+    const area       = document.getElementById('header-user-area');
+    const mobileArea = document.getElementById('mobile-user-area');
+    if (!area) return;
+    if (window.location.pathname.includes('/admin/')) return;
+    const base = '';
+    try {
+      const res = await fetch('/api/auth/me', { credentials: 'include' });
+      if (res.ok) {
+        const me        = await res.json();
+        const firstName = me.name ? me.name.split(' ')[0] : 'Mis turnos';
+        area.innerHTML       = `<a href="${base}mis-turnos.html" class="btn btn-outline btn-sm" style="margin-right:6px">Hola, ${firstName}</a>`;
+        if (mobileArea) mobileArea.innerHTML = `<a href="${base}mis-turnos.html">Mis turnos (${firstName})</a>`;
+      } else {
+        area.innerHTML       = `<a href="${base}login.html" class="btn btn-outline btn-sm" style="margin-right:6px">Iniciar sesión</a>`;
+        if (mobileArea) mobileArea.innerHTML = `<a href="${base}login.html">Iniciar sesión</a>`;
+      }
+    } catch {
+      area.innerHTML       = `<a href="${base}login.html" class="btn btn-outline btn-sm" style="margin-right:6px">Iniciar sesión</a>`;
+      if (mobileArea) mobileArea.innerHTML = `<a href="${base}login.html">Iniciar sesión</a>`;
+    }
+  },
+
   initNewsletter() {
     const form = document.getElementById("newsletter-form");
     if (!form) return;
@@ -260,5 +285,6 @@ const Components = {
     this.initHeader();
     this.initCookieBanner();
     this.initNewsletter();
+    this.initAuth();
   },
 };
