@@ -104,12 +104,17 @@ app.use((err, _req, res, _next) => {
   });
 });
 
-// ─── Start ────────────────────────────────────────────────────────────────────
-const PORT = Number(process.env.PORT) || 3000;
-app.listen(PORT, () => {
-  console.log(`\n🚀 Studio Hair corriendo en http://localhost:${PORT}`);
-  console.log(`   Frontend: http://localhost:${PORT}`);
-  console.log(`   Admin:    http://localhost:${PORT}/admin/login.html`);
-  console.log(`   API:      http://localhost:${PORT}/api/health`);
-  console.log(`   DB:       ${process.env.DATABASE_URL ? '✓ configurada' : '✗ DATABASE_URL no encontrada'}\n`);
-});
+// ─── Start (solo en desarrollo local) ────────────────────────────────────────
+// En Vercel el servidor es serverless; exportamos el app en vez de escuchar.
+if (process.env.VERCEL !== '1') {
+  const PORT = Number(process.env.PORT) || 3000;
+  app.listen(PORT, () => {
+    console.log(`\n🚀 Studio Hair corriendo en http://localhost:${PORT}`);
+    console.log(`   Frontend: http://localhost:${PORT}`);
+    console.log(`   Admin:    http://localhost:${PORT}/admin/login.html`);
+    console.log(`   API:      http://localhost:${PORT}/api/health`);
+    console.log(`   DB:       ${process.env.DATABASE_URL ? '✓ configurada' : '✗ DATABASE_URL no encontrada'}\n`);
+  });
+}
+
+export default app;
