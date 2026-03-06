@@ -61,6 +61,17 @@ const Api = {
     window.location.href = `/api/appointments/cancel/${token}`;
   },
 
+  // ── Auth de clientes ───────────────────────────────────────────────
+  auth: {
+    register(data)             { return Api.post('/auth/register', data); },
+    login(email, password)     { return Api.post('/auth/login', { email, password }); },
+    logout()                   { return Api.post('/auth/logout', {}); },
+    me()                       { return Api.get('/auth/me'); },
+    myAppointments()           { return Api.get('/appointments/mine'); },
+    forgotPassword(email)      { return Api.post('/auth/forgot-password', { email }); },
+    resetPassword(token, pass) { return Api.post('/auth/reset-password', { token, password: pass }); },
+  },
+
   // ── Admin ──────────────────────────────────────────────────
   admin: {
     login(email, password) {
@@ -71,6 +82,9 @@ const Api = {
     },
     me() {
       return Api.get('/admin/auth/me');
+    },
+    changePassword(currentPassword, newPassword) {
+      return Api.patch('/admin/auth/password', { currentPassword, newPassword });
     },
 
     // Turnos

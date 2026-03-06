@@ -95,13 +95,16 @@ model ProfessionalService {
 
 // ─── Customer ─────────────────────────────────────────────────────────────────
 model Customer {
-  id           Int           @id @default(autoincrement())
-  name         String
-  email        String        @unique
-  phone        String?
-  notes        String?
-  createdAt    DateTime      @default(now())
-  appointments Appointment[]
+  id                  Int           @id @default(autoincrement())
+  name                String
+  email               String        @unique
+  phone               String?
+  notes               String?
+  passwordHash        String?       // null = cliente sin cuenta (reservó como invitado)
+  passwordResetToken  String?       @unique
+  passwordResetExpiry DateTime?
+  createdAt           DateTime      @default(now())
+  appointments        Appointment[]
 
   @@map("customers")
 }

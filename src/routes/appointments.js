@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import { prisma } from '../prisma.js';
 import { getAvailableSlots } from '../services/availability.js';
 import { sendConfirmationEmail } from '../services/email.js';
+import { requireClient } from '../middleware/clientAuth.js';
 
 const router = Router();
 
@@ -191,6 +192,47 @@ router.get('/my', async (req, res, next) => {
         services:    apt.services.map(s => s.service),
         cancelToken: apt.cancelToken,
         createdAt:   apt.createdAt,
+      })),
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ─── GET /api/appointments/mine — Mis turnos (sesión activa) ─────────────────
+router.get('/mine', requireClient, async (req, res, next) => {
+  try {
+    const customer = await prisma.customer.findUnique({
+      where: { id: req.customer.customerId },
+      include: {
+        appointments: {
+          include: {
+            branch:       { select: { name: true, address: true } },
+            professional: { select: { name: true, role: true } },
+            services:     { include: { service: { select: { name: true, price: true } } } },
+          },
+          orderBy: [{ date: 'desc' }, { startTime: 'desc' }],
+        },
+      },
+    });
+
+    if (!customer) return res.status(404).json({ error: 'Cliente no encontrado' });
+
+    res.json({
+      customer: { name: customer.name, email: customer.email, phone: customer.phone },
+      appointments: customer.appointments.map(apt => ({
+        id:           apt.id,
+        date:         apt.date,
+        startTime:    apt.startTime,
+        endTime:      apt.endTime,
+        status:       apt.status,
+        totalPrice:   apt.totalPrice,
+        totalMin:     apt.totalDurationMin,
+        branch:       apt.branch,
+        professional: apt.professional,
+        services:     apt.services.map(s => s.service),
+        cancelToken:  apt.cancelToken,
+        createdAt:    apt.createdAt,
       })),
     });
   } catch (err) {

@@ -102,3 +102,61 @@ export async function sendConfirmationEmail({ to, customerName, appointment, can
 
   console.log('[EMAIL] Confirmación enviada a:', to);
 }
+
+// ─── Email de bienvenida al registrarse ───────────────────────────────────────
+export async function sendWelcomeEmail({ to, customerName }) {
+  const t = getTransporter();
+  if (!t) { console.log('[EMAIL] SMTP no configurado — bienvenida omitida para:', to); return; }
+
+  await t.sendMail({
+    from:    process.env.EMAIL_FROM,
+    to,
+    subject: '¡Bienvenido/a a Studio Hair!',
+    html: `
+<!DOCTYPE html><html lang="es"><body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#333">
+  <div style="background:#1a1a2e;padding:20px;text-align:center;border-radius:8px 8px 0 0">
+    <h1 style="color:#c9a84c;margin:0;font-size:24px">✂ Studio Hair</h1>
+  </div>
+  <div style="background:#f9f9f9;padding:24px;border-radius:0 0 8px 8px;border:1px solid #eee">
+    <h2 style="color:#1a1a2e;margin-top:0">¡Hola ${customerName}! Tu cuenta fue creada.</h2>
+    <p style="color:#666">Ya podés iniciar sesión para ver y gestionar tus turnos en cualquier momento.</p>
+    <div style="text-align:center;margin:24px 0">
+      <a href="${process.env.BASE_URL}/login.html" style="background:#c9a84c;color:#1a1a2e;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:bold;display:inline-block">
+        Ir a mis turnos
+      </a>
+    </div>
+    <p style="font-size:12px;color:#999;text-align:center">¿Tenés dudas? Escribinos a <a href="mailto:hola@studiohair.com.ar">hola@studiohair.com.ar</a></p>
+  </div>
+</body></html>`,
+  });
+  console.log('[EMAIL] Bienvenida enviada a:', to);
+}
+
+// ─── Email de recuperación de contraseña ─────────────────────────────────────
+export async function sendPasswordResetEmail({ to, customerName, resetUrl }) {
+  const t = getTransporter();
+  if (!t) { console.log('[EMAIL] SMTP no configurado — reset omitido para:', to); return; }
+
+  await t.sendMail({
+    from:    process.env.EMAIL_FROM,
+    to,
+    subject: 'Recuperá tu contraseña — Studio Hair',
+    html: `
+<!DOCTYPE html><html lang="es"><body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#333">
+  <div style="background:#1a1a2e;padding:20px;text-align:center;border-radius:8px 8px 0 0">
+    <h1 style="color:#c9a84c;margin:0;font-size:24px">✂ Studio Hair</h1>
+  </div>
+  <div style="background:#f9f9f9;padding:24px;border-radius:0 0 8px 8px;border:1px solid #eee">
+    <h2 style="color:#1a1a2e;margin-top:0">Hola ${customerName}, recuperá tu contraseña.</h2>
+    <p style="color:#666">Hacé click en el botón para crear una nueva contraseña. El link es válido por 1 hora.</p>
+    <div style="text-align:center;margin:24px 0">
+      <a href="${resetUrl}" style="background:#1a1a2e;color:#c9a84c;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:bold;display:inline-block">
+        Crear nueva contraseña
+      </a>
+    </div>
+    <p style="font-size:12px;color:#999;text-align:center">Si no solicitaste este cambio, podés ignorar este email.</p>
+  </div>
+</body></html>`,
+  });
+  console.log('[EMAIL] Reset de contraseña enviado a:', to);
+}

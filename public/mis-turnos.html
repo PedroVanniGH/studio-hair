@@ -129,6 +129,10 @@
             <p id="search-error" class="form-hint" style="color:var(--c-error);display:none"></p>
           </div>
         </form>
+        <div style="margin-top:16px;text-align:center;border-top:1px solid var(--c-border);padding-top:14px">
+          <span style="font-size:.85rem;color:var(--c-muted)">¿Tenés cuenta? </span>
+          <a href="login.html" class="btn btn-outline btn-sm" style="margin-left:6px">Iniciá sesión</a>
+        </div>
       </div>
 
       <!-- Zona de carga -->
@@ -163,7 +167,7 @@
 <script src="js/components.js"></script>
 <script src="js/api.js"></script>
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', async () => {
     Components.init('mis-turnos');
 
     // Detectar si viene de cancelación
@@ -172,6 +176,21 @@
       document.getElementById('cancelled-banner').hidden = false;
     }
 
+    // Verificar si hay sesión activa de cliente
+    try {
+      const me = await Api.auth.me();
+      if (me) {
+        // Logueado: cargar turnos automáticamente
+        document.getElementById('search-section').hidden = true;
+        document.getElementById('customer-header').innerHTML =
+          `Hola, <strong>${me.name}</strong> &nbsp;·&nbsp;
+           <a href="#" onclick="logoutClient(event)" style="font-size:.8rem;color:var(--c-accent)">Cerrar sesión</a>`;
+        await loadMyAppointments();
+        return;
+      }
+    } catch {}
+
+    // Sin sesión: mostrar búsqueda por email
     // Pre-cargar email desde URL (viene del wizard)
     const preEmail = params.get('email');
     if (preEmail) {
@@ -298,6 +317,30 @@
       NO_SHOW:    'No asistió',
     };
     return map[s] || s;
+  }
+
+  async function loadMyAppointments() {
+    document.getElementById('loading-section').hidden = false;
+    document.getElementById('results-section').hidden = true;
+    try {
+      const data = await Api.auth.myAppointments();
+      document.getElementById('loading-section').hidden = true;
+      document.getElementById('appointments-list').innerHTML =
+        data.appointments.length
+          ? data.appointments.map(renderCard).join('')
+          : `<div class="mt-empty"><p>No hay turnos registrados aún.</p><a href="reservar.html" class="btn btn-primary" style="margin-top:16px">Reservar mi primer turno</a></div>`;
+      document.getElementById('results-section').hidden = false;
+      document.getElementById('new-search-btn').hidden = true;
+    } catch (err) {
+      document.getElementById('loading-section').hidden = true;
+      Components.toast(err?.error || 'No se pudo cargar tus turnos.', 'error');
+    }
+  }
+
+  async function logoutClient(e) {
+    e.preventDefault();
+    try { await Api.auth.logout(); } catch {}
+    window.location.reload();
   }
 
   async function cancelTurno(token, btn) {

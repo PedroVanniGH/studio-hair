@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi cuenta — Studio Hair</title>
+  <meta name="description" content="Iniciá sesión o registrate para gestionar tus turnos en Studio Hair.">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .auth-page { min-height: 80vh; display: flex; align-items: center; padding: 40px 0 80px; }
+    .auth-card {
+      background: var(--c-card);
+      border: 1px solid var(--c-border);
+      border-radius: var(--radius-lg);
+      padding: 36px 32px;
+      max-width: 440px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .auth-logo { text-align: center; margin-bottom: 24px; }
+    .auth-logo h2 { font-size: 1.5rem; margin: 0; color: var(--c-accent); }
+    .auth-logo p { color: var(--c-muted); font-size: .9rem; margin: 4px 0 0; }
+    .auth-tabs { display: flex; border-bottom: 2px solid var(--c-border); margin-bottom: 24px; }
+    .auth-tab {
+      flex: 1; padding: 10px; text-align: center; cursor: pointer;
+      font-weight: 600; font-size: .9rem; color: var(--c-muted);
+      border-bottom: 2px solid transparent; margin-bottom: -2px;
+      background: none; border-top: none; border-left: none; border-right: none;
+      transition: color .2s, border-color .2s;
+    }
+    .auth-tab.active { color: var(--c-accent); border-bottom-color: var(--c-accent); }
+    .auth-panel { display: none; }
+    .auth-panel.active { display: block; }
+    .auth-divider { text-align: center; color: var(--c-muted); font-size: .85rem; margin: 8px 0; }
+    .forgot-link { text-align: right; }
+    .forgot-link button {
+      background: none; border: none; color: var(--c-accent); cursor: pointer;
+      font-size: .85rem; padding: 0; text-decoration: underline;
+    }
+    .auth-message {
+      padding: 10px 14px; border-radius: var(--radius-md); font-size: .9rem;
+      margin-bottom: 16px; display: none;
+    }
+    .auth-message.success { background: #d1e7dd; color: #0a5c36; }
+    .auth-message.error   { background: #f8d7da; color: #58151c; }
+    @media (max-width: 500px) { .auth-card { padding: 24px 16px; } }
+  </style>
+</head>
+<body>
+<div id="header-mount"></div>
+
+<main>
+  <section class="auth-page">
+    <div class="container">
+      <div class="auth-card">
+        <div class="auth-logo">
+          <h2>✂ Studio Hair</h2>
+          <p>Gestioná tus turnos desde tu cuenta</p>
+        </div>
+
+        <!-- Tabs -->
+        <div class="auth-tabs" id="auth-tabs">
+          <button class="auth-tab active" data-tab="login">Iniciar sesión</button>
+          <button class="auth-tab" data-tab="register">Registrarse</button>
+        </div>
+
+        <!-- Mensajes -->
+        <div id="auth-message" class="auth-message"></div>
+
+        <!-- Panel Login -->
+        <div class="auth-panel active" id="panel-login">
+          <form id="login-form" novalidate>
+            <div class="form-group">
+              <label class="form-label" for="login-email">Email</label>
+              <input type="email" id="login-email" class="form-control" placeholder="tu@email.com" autocomplete="email" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="login-password">Contraseña</label>
+              <input type="password" id="login-password" class="form-control" placeholder="••••••••" autocomplete="current-password" required>
+              <div class="forgot-link" style="margin-top:6px">
+                <button type="button" onclick="showForgot()">¿Olvidaste tu contraseña?</button>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%" id="login-btn">Ingresar</button>
+          </form>
+          <div class="auth-divider" style="margin-top:16px">¿No tenés cuenta?
+            <button onclick="switchTab('register')" style="background:none;border:none;color:var(--c-accent);cursor:pointer;font-weight:600;text-decoration:underline">Registrate</button>
+          </div>
+        </div>
+
+        <!-- Panel Registro -->
+        <div class="auth-panel" id="panel-register">
+          <form id="register-form" novalidate>
+            <div class="form-group">
+              <label class="form-label" for="reg-name">Nombre completo</label>
+              <input type="text" id="reg-name" class="form-control" placeholder="Tu nombre" autocomplete="name" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="reg-email">Email</label>
+              <input type="email" id="reg-email" class="form-control" placeholder="tu@email.com" autocomplete="email" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="reg-phone">Teléfono <span style="color:var(--c-muted);font-weight:400">(opcional)</span></label>
+              <input type="tel" id="reg-phone" class="form-control" placeholder="+54 11 ..." autocomplete="tel">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="reg-password">Contraseña <span style="color:var(--c-muted);font-weight:400">(mín. 6 caracteres)</span></label>
+              <input type="password" id="reg-password" class="form-control" placeholder="••••••••" autocomplete="new-password" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%" id="register-btn">Crear cuenta</button>
+          </form>
+          <div class="auth-divider" style="margin-top:16px">¿Ya tenés cuenta?
+            <button onclick="switchTab('login')" style="background:none;border:none;color:var(--c-accent);cursor:pointer;font-weight:600;text-decoration:underline">Iniciá sesión</button>
+          </div>
+        </div>
+
+        <!-- Panel Forgot Password -->
+        <div class="auth-panel" id="panel-forgot">
+          <p style="color:var(--c-muted);font-size:.9rem;margin-bottom:16px">
+            Ingresá tu email y te enviamos un link para crear una nueva contraseña.
+          </p>
+          <form id="forgot-form" novalidate>
+            <div class="form-group">
+              <label class="form-label" for="forgot-email">Tu email</label>
+              <input type="email" id="forgot-email" class="form-control" placeholder="tu@email.com" required>
+            </div>
+            <div style="display:flex;gap:10px">
+              <button type="button" class="btn btn-outline" onclick="switchTab('login')">Volver</button>
+              <button type="submit" class="btn btn-primary" id="forgot-btn" style="flex:1">Enviar link</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Panel Reset Password -->
+        <div class="auth-panel" id="panel-reset">
+          <p style="color:var(--c-muted);font-size:.9rem;margin-bottom:16px">Creá tu nueva contraseña.</p>
+          <form id="reset-form" novalidate>
+            <div class="form-group">
+              <label class="form-label" for="reset-password">Nueva contraseña <span style="color:var(--c-muted);font-weight:400">(mín. 6 caracteres)</span></label>
+              <input type="password" id="reset-password" class="form-control" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%" id="reset-btn">Guardar contraseña</button>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="footer-mount"></div>
+<div id="toast-mount"></div>
+
+<script src="js/data.js"></script>
+<script src="js/components.js"></script>
+<script src="js/api.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    Components.init('login');
+
+    // Si ya está logueado, redirigir
+    try {
+      const me = await Api.auth.me();
+      if (me) { window.location.replace('mis-turnos.html'); return; }
+    } catch {}
+
+    // ¿Viene con token de reset?
+    const params = new URLSearchParams(location.search);
+    const resetToken = params.get('reset');
+    if (resetToken) { showPanel('reset'); }
+
+    // Tabs
+    document.querySelectorAll('.auth-tab').forEach(btn => {
+      btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+    });
+
+    // Login
+    document.getElementById('login-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const email    = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const btn = document.getElementById('login-btn');
+      btn.disabled = true; btn.textContent = 'Ingresando...';
+      clearMessage();
+      try {
+        await Api.auth.login(email, password);
+        window.location.replace('mis-turnos.html');
+      } catch (err) {
+        showMessage(err?.error || 'Error al iniciar sesión', 'error');
+        btn.disabled = false; btn.textContent = 'Ingresar';
+      }
+    });
+
+    // Registro
+    document.getElementById('register-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const name     = document.getElementById('reg-name').value.trim();
+      const email    = document.getElementById('reg-email').value.trim();
+      const phone    = document.getElementById('reg-phone').value.trim();
+      const password = document.getElementById('reg-password').value;
+      const btn = document.getElementById('register-btn');
+      btn.disabled = true; btn.textContent = 'Creando cuenta...';
+      clearMessage();
+      try {
+        await Api.auth.register({ name, email, phone: phone || undefined, password });
+        window.location.replace('mis-turnos.html');
+      } catch (err) {
+        const msg = typeof err?.error === 'object'
+          ? Object.values(err.error).flat().join(', ')
+          : (err?.error || 'Error al crear la cuenta');
+        showMessage(msg, 'error');
+        btn.disabled = false; btn.textContent = 'Crear cuenta';
+      }
+    });
+
+    // Forgot password
+    document.getElementById('forgot-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const email = document.getElementById('forgot-email').value.trim();
+      const btn = document.getElementById('forgot-btn');
+      btn.disabled = true; btn.textContent = 'Enviando...';
+      clearMessage();
+      try {
+        await Api.auth.forgotPassword(email);
+        showMessage('Si ese email tiene una cuenta, te enviamos el link. Revisá tu bandeja de entrada.', 'success');
+        btn.disabled = false; btn.textContent = 'Enviar link';
+      } catch (err) {
+        showMessage(err?.error || 'Error al enviar el email', 'error');
+        btn.disabled = false; btn.textContent = 'Enviar link';
+      }
+    });
+
+    // Reset password
+    document.getElementById('reset-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const password = document.getElementById('reset-password').value;
+      const token = new URLSearchParams(location.search).get('reset');
+      const btn = document.getElementById('reset-btn');
+      btn.disabled = true; btn.textContent = 'Guardando...';
+      clearMessage();
+      try {
+        await Api.auth.resetPassword(token, password);
+        showMessage('Contraseña actualizada. Ahora podés iniciar sesión.', 'success');
+        setTimeout(() => { history.replaceState({}, '', '/login.html'); switchTab('login'); }, 2000);
+      } catch (err) {
+        showMessage(err?.error || 'Error al cambiar la contraseña', 'error');
+        btn.disabled = false; btn.textContent = 'Guardar contraseña';
+      }
+    });
+  });
+
+  function switchTab(tab) {
+    showPanel(tab);
+    document.querySelectorAll('.auth-tab').forEach(b => {
+      b.classList.toggle('active', b.dataset.tab === tab);
+    });
+    clearMessage();
+  }
+
+  function showPanel(name) {
+    document.querySelectorAll('.auth-panel').forEach(p => p.classList.remove('active'));
+    const panel = document.getElementById('panel-' + name);
+    if (panel) panel.classList.add('active');
+  }
+
+  function showForgot() {
+    showPanel('forgot');
+    document.querySelectorAll('.auth-tab').forEach(b => b.classList.remove('active'));
+    clearMessage();
+  }
+
+  function showMessage(msg, type) {
+    const el = document.getElementById('auth-message');
+    el.textContent = msg;
+    el.className = 'auth-message ' + type;
+    el.style.display = 'block';
+  }
+
+  function clearMessage() {
+    document.getElementById('auth-message').style.display = 'none';
+  }
+</script>
+</body>
+</html>

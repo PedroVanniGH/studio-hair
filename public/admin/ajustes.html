@@ -136,6 +136,7 @@
 <div class="toast-container" id="toast-container" aria-live="polite"></div>
 <script src="../js/data.js"></script>
 <script src="../js/admin.js"></script>
+<script src="../js/api.js"></script>
 <script src="shared.js"></script>
 <script>
   Admin.requireAuth();
@@ -146,45 +147,37 @@
   document.getElementById("brand-phone").value  = SH.brand.phone;
   document.getElementById("brand-wa").value     = SH.brand.phone;
 
-  // Pre-fill admin email
-  const adminData = Store.get().admin_user || {};
-  document.getElementById("set-email").value = adminData.email || "";
+  // Pre-fill admin email desde la API
+  Api.admin.me().then(data => {
+    document.getElementById("set-email").value = data.email || "";
+  }).catch(() => {});
 
-  function saveAdminAccount() {
-    const email   = document.getElementById("set-email").value.trim();
-    const passOld = document.getElementById("set-pass-old").value;
-    const passNew = document.getElementById("set-pass-new").value;
+  async function saveAdminAccount() {
+    const passOld     = document.getElementById("set-pass-old").value;
+    const passNew     = document.getElementById("set-pass-new").value;
     const passConfirm = document.getElementById("set-pass-confirm").value;
 
-    if (!email) { Admin.toast("El email es requerido.", "error"); return; }
-    const data = Store.get();
-    if (!data.admin_user) data.admin_user = {};
+    if (!passOld || !passNew) { Admin.toast("Completá la contraseña actual y la nueva.", "error"); return; }
+    if (passNew !== passConfirm) { Admin.toast("Las contraseñas nuevas no coinciden.", "error"); return; }
+    if (passNew.length < 6) { Admin.toast("La contraseña debe tener al menos 6 caracteres.", "error"); return; }
 
-    if (passOld || passNew) {
-      if (passOld !== data.admin_user.password) { Admin.toast("Contraseña actual incorrecta.", "error"); return; }
-      if (passNew !== passConfirm) { Admin.toast("Las contraseñas nuevas no coinciden.", "error"); return; }
-      if (passNew.length < 6) { Admin.toast("La contraseña debe tener al menos 6 caracteres.", "error"); return; }
-      data.admin_user.password = passNew;
+    try {
+      await Api.admin.changePassword(passOld, passNew);
+      Admin.toast("Contraseña actualizada correctamente.", "success");
+      document.getElementById("set-pass-old").value = "";
+      document.getElementById("set-pass-new").value = "";
+      document.getElementById("set-pass-confirm").value = "";
+    } catch (err) {
+      Admin.toast(err?.error || "Error al cambiar la contraseña.", "error");
     }
-    data.admin_user.email = email;
-    Store.save(data);
-    Admin.toast("Cuenta actualizada correctamente.", "success");
-    document.getElementById("set-pass-old").value = "";
-    document.getElementById("set-pass-new").value = "";
-    document.getElementById("set-pass-confirm").value = "";
   }
 
   function resetAppointments() {
-    const data = Store.get();
-    data.appointments = [];
-    Store.save(data);
-    Admin.toast("Todos los turnos fueron eliminados.", "success");
+    Admin.toast("Función no disponible en esta versión.", "error");
   }
 
   function resetAll() {
-    localStorage.removeItem(Store.KEY);
-    Store.init();
-    Admin.toast("Datos restaurados a los valores iniciales.", "success");
+    Admin.toast("Función no disponible en esta versión.", "error");
   }
 </script>
 </body>

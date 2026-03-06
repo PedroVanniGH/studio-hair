@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 
 import authRoutes         from './routes/auth.js';
+import customerAuthRoutes from './routes/customerAuth.js';
 import branchRoutes       from './routes/branches.js';
 import serviceRoutes      from './routes/services.js';
 import professionalRoutes from './routes/professionals.js';
@@ -60,6 +61,16 @@ app.use(
   })
 );
 
+// Auth cliente: máximo 10 intentos / 15 min por IP
+app.use(
+  '/api/auth/login',
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max:      10,
+    message:  { error: 'Demasiados intentos de login. Esperá 15 minutos.' },
+  })
+);
+
 // Crear turno: máximo 20 reservas / hora por IP
 app.use(
   '/api/appointments',
@@ -72,6 +83,7 @@ app.use(
 
 // ─── API Routes ───────────────────────────────────────────────────────────────
 app.use('/api/admin/auth',  authRoutes);
+app.use('/api/auth',        customerAuthRoutes);
 app.use('/api/branches',    branchRoutes);
 app.use('/api/services',    serviceRoutes);
 app.use('/api/professionals', professionalRoutes);
