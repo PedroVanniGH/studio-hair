@@ -1,0 +1,104 @@
+import nodemailer from 'nodemailer';
+
+let transporter = null;
+
+function getTransporter() {
+  if (!process.env.SMTP_USER || process.env.SMTP_USER === 'tu-email@gmail.com') {
+    return null; // SMTP no configurado, emails deshabilitados
+  }
+  if (!transporter) {
+    transporter = nodemailer.createTransport({
+      host:   process.env.SMTP_HOST   || 'smtp.gmail.com',
+      port:   Number(process.env.SMTP_PORT) || 587,
+      secure: process.env.SMTP_SECURE === 'true',
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    });
+  }
+  return transporter;
+}
+
+/**
+ * Email de confirmación de turno al cliente.
+ * Se llama de forma asíncrona (no bloquea la respuesta HTTP).
+ */
+export async function sendConfirmationEmail({ to, customerName, appointment, cancelToken }) {
+  const t = getTransporter();
+  if (!t) {
+    console.log('[EMAIL] SMTP no configurado — email omitido para:', to);
+    return;
+  }
+
+  const cancelUrl = `${process.env.BASE_URL}/api/appointments/cancel/${cancelToken}`;
+  const myApptsUrl = `${process.env.BASE_URL}/mis-turnos.html?email=${encodeURIComponent(to)}`;
+
+  const dateObj = new Date(appointment.date);
+  const dateStr = dateObj.toLocaleDateString('es-AR', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC',
+  });
+
+  const services = (appointment.services || [])
+    .map(s => s.service?.name || s.name || '')
+    .filter(Boolean)
+    .join(', ');
+
+  const branchName    = appointment.branch?.name || '';
+  const profName      = appointment.professional?.name || 'A confirmar';
+  const totalPrice    = Number(appointment.totalPrice).toLocaleString('es-AR', {
+    style: 'currency', currency: 'ARS', maximumFractionDigits: 0,
+  });
+
+  await t.sendMail({
+    from:    process.env.EMAIL_FROM,
+    to,
+    subject: `Turno recibido — Studio Hair`,
+    html: `
+<!DOCTYPE html>
+<html lang="es">
+<body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#333">
+  <div style="background:#1a1a2e;padding:20px;text-align:center;border-radius:8px 8px 0 0">
+    <h1 style="color:#c9a84c;margin:0;font-size:24px">✂ Studio Hair</h1>
+  </div>
+  <div style="background:#f9f9f9;padding:24px;border-radius:0 0 8px 8px;border:1px solid #eee">
+    <h2 style="color:#1a1a2e;margin-top:0">¡Hola ${customerName}! Tu turno fue registrado.</h2>
+    <p style="color:#666">Tu solicitud fue recibida. Te confirmaremos el turno a la brevedad.</p>
+
+    <div style="background:#fff;border:1px solid #eee;border-radius:6px;padding:16px;margin:20px 0">
+      <table style="width:100%;border-collapse:collapse">
+        <tr><td style="padding:6px 0;color:#666;width:40%">Fecha</td><td style="padding:6px 0;font-weight:bold">${dateStr}</td></tr>
+        <tr><td style="padding:6px 0;color:#666">Hora</td><td style="padding:6px 0;font-weight:bold">${appointment.startTime} hs</td></tr>
+        <tr><td style="padding:6px 0;color:#666">Servicios</td><td style="padding:6px 0">${services}</td></tr>
+        <tr><td style="padding:6px 0;color:#666">Sucursal</td><td style="padding:6px 0">${branchName}</td></tr>
+        <tr><td style="padding:6px 0;color:#666">Profesional</td><td style="padding:6px 0">${profName}</td></tr>
+        <tr><td style="padding:6px 0;color:#666">Total estimado</td><td style="padding:6px 0;font-weight:bold">${totalPrice}</td></tr>
+        <tr>
+          <td style="padding:6px 0;color:#666">Estado</td>
+          <td style="padding:6px 0">
+            <span style="background:#fff3cd;color:#856404;padding:2px 8px;border-radius:4px;font-size:13px">PENDIENTE</span>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <div style="text-align:center;margin:24px 0">
+      <a href="${myApptsUrl}" style="background:#1a1a2e;color:#c9a84c;padding:12px 24px;border-radius:6px;text-decoration:none;display:inline-block;margin:4px">
+        Ver mis turnos
+      </a>
+      <a href="${cancelUrl}" style="background:#fff;color:#dc3545;padding:12px 24px;border-radius:6px;text-decoration:none;display:inline-block;border:1px solid #dc3545;margin:4px">
+        Cancelar turno
+      </a>
+    </div>
+
+    <p style="font-size:12px;color:#999;text-align:center">
+      Podés cancelar hasta 2 horas antes del turno.<br>
+      Si tenés dudas, escribinos a <a href="mailto:hola@studiohair.com.ar">hola@studiohair.com.ar</a>
+    </p>
+  </div>
+</body>
+</html>`,
+  });
+
+  console.log('[EMAIL] Confirmación enviada a:', to);
+}

@@ -32,10 +32,10 @@
   </section>
 
   <!-- CTA -->
-  <section class="section-sm" style="background:var(--c-black);text-align:center">
+  <section class="section-sm section-dark text-center">
     <div class="container">
-      <h2 style="font-family:var(--font-head);font-size:2rem;font-weight:800;color:#fff;margin-bottom:12px">¿No encontrás lo que buscás?</h2>
-      <p style="color:rgba(255,255,255,.7);margin-bottom:28px">Escribinos por WhatsApp y te ayudamos a armar el servicio perfecto para vos.</p>
+      <h2 class="section-cta-title">¿No encontrás lo que buscás?</h2>
+      <p class="section-cta-text">Escribinos por WhatsApp y te ayudamos a armar el servicio perfecto para vos.</p>
       <a href="https://wa.me/5491145678900" target="_blank" rel="noopener" class="btn btn-gold btn-lg">💬 Escribinos por WhatsApp</a>
     </div>
   </section>
@@ -71,7 +71,7 @@
     const services = cat === "todos" ? SH.services.filter(s => s.active) : SH.services.filter(s => s.category === cat && s.active);
     const grid = document.getElementById("services-grid");
     if (!services.length) {
-      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">✂</div><h3>Sin servicios en esta categoría</h3><p>Consultanos por WhatsApp para más opciones.</p></div>`;
+      grid.innerHTML = `<div class="empty-state"><div class="empty-icon">✂</div><h3>Sin servicios en esta categoría</h3><p>Consultanos por WhatsApp para más opciones.</p></div>`;
       return;
     }
     grid.innerHTML = services.map(s => `
@@ -79,7 +79,7 @@
         <img src="${s.image}" alt="${s.name}" class="card-img" loading="lazy" width="400" height="250">
         <div class="card-body">
           <span class="card-badge">${Utils.getCategoryLabel(s.category)}</span>
-          ${s.popular ? '<span class="badge badge-popular" style="margin-left:6px">Popular</span>' : ''}
+          ${s.popular ? '<span class="badge badge-popular">Popular</span>' : ''}
           <h2 class="card-title">${s.name}</h2>
           <p class="card-text">${s.description}</p>
           <p class="card-price">Desde ${Utils.formatPrice(s.price)}</p>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Servicios — Studio Hair Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+<div class="admin-layout">
+  <div id="sidebar-mount"></div>
+  <header class="admin-topbar" role="banner">
+    <div class="topbar-title">Servicios</div>
+    <div class="topbar-actions">
+      <div class="topbar-user"><div class="topbar-avatar" aria-hidden="true">A</div><span>Admin</span></div>
+    </div>
+  </header>
+  <main class="admin-main">
+    <div class="admin-page">
+      <div class="admin-page-header">
+        <div><h1>Servicios</h1><p>Listado de todos los servicios del catálogo.</p></div>
+      </div>
+
+      <div class="info-banner">
+        <strong>Nota:</strong> Los servicios se gestionan desde el servidor. Para crear, editar o eliminar servicios, usá la API REST (<code>POST/PATCH/DELETE /api/admin/services</code>).
+      </div>
+
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <h3 id="svc-count-title">Catálogo de servicios</h3>
+          <div class="filter-row">
+            <select class="admin-select" id="svc-cat-filter" onchange="filterAdminServices(this.value)" aria-label="Filtrar por categoría">
+              <option value="todos">Todas las categorías</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" aria-label="Catálogo de servicios">
+            <thead>
+              <tr><th>Servicio</th><th>Categoría</th><th>Duración</th><th>Precio desde</th><th>Popular</th><th>Estado</th></tr>
+            </thead>
+            <tbody id="services-admin-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<div class="toast-container" id="toast-container" aria-live="polite"></div>
+<script src="../js/admin.js"></script>
+<script src="shared.js"></script>
+<script>
+  Admin.requireAuth();
+
+  function fmtCurrency(n) {
+    return new Intl.NumberFormat('es-AR', { style:'currency', currency:'ARS', maximumFractionDigits:0 }).format(Number(n));
+  }
+
+  async function loadServices(categoryFilter = '') {
+    const tbody = document.getElementById('services-admin-tbody');
+    tbody.innerHTML = `<tr><td colspan="6" class="empty-cell">Cargando...</td></tr>`;
+
+    const params = new URLSearchParams();
+    if (categoryFilter) params.set('category', categoryFilter);
+
+    try {
+      const svcs = await fetch(`/api/services?${params}`, { credentials:'include' }).then(r=>r.json());
+      document.getElementById('svc-count-title').textContent = `Catálogo de servicios (${svcs.length} servicios)`;
+
+      tbody.innerHTML = svcs.map(s => `
+        <tr>
+          <td>
+            <div class="table-svc-cell">
+              ${s.imageUrl ? `<img src="${s.imageUrl}" alt="" class="table-svc-img">` : `<div class="table-svc-img" style="background:var(--c-border)"></div>`}
+              <div>
+                <strong>${s.name}</strong>
+                <div class="table-svc-desc">${s.description || ''}</div>
+              </div>
+            </div>
+          </td>
+          <td>${s.category || '—'}</td>
+          <td>${s.durationMin} min <small class="text-muted">+${s.bufferMin}m</small></td>
+          <td class="table-price">${fmtCurrency(s.price)}</td>
+          <td>${s.popular ? '<span class="badge badge-gold">★ Popular</span>' : '—'}</td>
+          <td><span class="badge ${s.active ? 'badge-active' : 'badge-inactive'}">${s.active ? 'Activo' : 'Inactivo'}</span></td>
+        </tr>`).join('');
+    } catch(_) {
+      tbody.innerHTML = `<tr><td colspan="6" class="empty-cell">Error al cargar servicios.</td></tr>`;
+    }
+  }
+
+  function filterAdminServices(cat) {
+    loadServices(cat === 'todos' ? '' : cat);
+  }
+
+  // Populate categories from static SH data for the filter select
+  document.addEventListener('DOMContentLoaded', () => {});
+
+  loadServices();
+</script>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clientes — Studio Hair Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+<div class="admin-layout">
+  <div id="sidebar-mount"></div>
+  <header class="admin-topbar" role="banner">
+    <div class="topbar-title">CRM Clientes</div>
+    <div class="topbar-actions">
+      <div class="topbar-user"><div class="topbar-avatar" aria-hidden="true">A</div><span>Admin</span></div>
+    </div>
+  </header>
+  <main class="admin-main">
+    <div class="admin-page">
+      <div class="admin-page-header">
+        <div><h1>Clientes</h1><p>Base de datos de todos los clientes registrados.</p></div>
+      </div>
+
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <h3 id="customers-count">Clientes</h3>
+          <div class="search-input-wrap">
+            <svg fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+            <input type="search" class="search-input" id="search-customer" placeholder="Buscar por nombre, email..." aria-label="Buscar cliente" oninput="loadCustomers(this.value)">
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" aria-label="Lista de clientes">
+            <thead>
+              <tr><th>Cliente</th><th>Email</th><th>Teléfono</th><th>Turnos</th><th>Último turno</th><th>Acciones</th></tr>
+            </thead>
+            <tbody id="customers-tbody">
+              <tr><td colspan="6" class="empty-cell">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal historial cliente -->
+<div class="modal-backdrop" id="modal-customer-detail" role="dialog" aria-modal="true" aria-labelledby="customer-detail-title">
+  <div class="modal" style="max-width:680px">
+    <div class="modal-header">
+      <h3 id="customer-detail-title">Historial del cliente</h3>
+      <button class="modal-close" onclick="Admin.closeModal('modal-customer-detail')" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="modal-body" id="customer-detail-body"></div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="Admin.closeModal('modal-customer-detail')">Cerrar</button></div>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container" aria-live="polite"></div>
+<script src="../js/admin.js"></script>
+<script src="shared.js"></script>
+<script>
+  Admin.requireAuth();
+
+  function aptStatusClass(s) {
+    const map = { PENDIENTE:'pending', CONFIRMADO:'confirmed', COMPLETADO:'completed', CANCELADO:'cancelled', NO_SHOW:'noshow' };
+    return map[s] || 'pending';
+  }
+  function fmtDate(iso) {
+    return iso ? iso.split('T')[0].split('-').reverse().join('/') : '—';
+  }
+
+  async function loadCustomers(search = '') {
+    const tbody = document.getElementById('customers-tbody');
+    tbody.innerHTML = `<tr><td colspan="6" class="empty-cell">Cargando...</td></tr>`;
+
+    const params = new URLSearchParams({ limit: 100 });
+    if (search) params.set('search', search);
+
+    try {
+      const data = await fetch(`/api/admin/customers?${params}`, { credentials:'include' }).then(r=>r.json());
+      const customers = data.customers || [];
+
+      document.getElementById('customers-count').textContent = `Clientes (${data.total ?? customers.length})`;
+
+      if (!customers.length) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--c-muted)">No hay clientes registrados.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = customers.map(c => {
+        const initials = c.name.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase();
+        return `<tr>
+          <td><div style="display:flex;align-items:center;gap:10px">
+            <div class="table-avatar-placeholder">${initials}</div>
+            <div><strong>${c.name}</strong></div>
+          </div></td>
+          <td>${c.email}</td>
+          <td>${c.phone||'—'}</td>
+          <td>${c.appointmentCount}</td>
+          <td>${fmtDate(c.lastVisit)}</td>
+          <td>
+            <button class="action-btn view" onclick="viewCustomer(${c.id})">Ver historial</button>
+          </td>
+        </tr>`;
+      }).join('');
+    } catch(_) {
+      tbody.innerHTML = `<tr><td colspan="6" class="empty-cell">Error al cargar clientes.</td></tr>`;
+    }
+  }
+
+  async function viewCustomer(id) {
+    try {
+      const c = await fetch(`/api/admin/customers/${id}`, { credentials:'include' }).then(r=>r.json());
+      const body = document.getElementById('customer-detail-body');
+      if (body) body.innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
+          <div class="form-group"><label class="form-label">Nombre</label><div style="font-weight:600">${c.name}</div></div>
+          <div class="form-group"><label class="form-label">Email</label><div>${c.email}</div></div>
+          <div class="form-group"><label class="form-label">Teléfono</label><div>${c.phone||'—'}</div></div>
+          <div class="form-group"><label class="form-label">Cliente desde</label><div>${fmtDate(c.createdAt)}</div></div>
+          <div class="form-group" style="grid-column:1/-1"><label class="form-label">Notas</label><div>${c.notes||'—'}</div></div>
+        </div>
+        <hr style="border:none;border-top:1px solid var(--c-border);margin-bottom:20px">
+        <h4 style="font-family:var(--font-head);font-weight:700;margin-bottom:14px">Historial de turnos (${c.appointments.length})</h4>
+        ${c.appointments.length
+          ? c.appointments.map(apt => {
+              const svcList = (apt.services||[]).map(as=>as.service.name).join(', ');
+              return `<div class="apt-item" data-status="${apt.status.toLowerCase()}" style="margin-bottom:8px">
+                <div class="apt-time">${fmtDate(apt.date)} ${apt.startTime}</div>
+                <div class="apt-info"><div class="apt-sub">${svcList}</div></div>
+                <span class="badge badge-${aptStatusClass(apt.status)}">${apt.status}</span>
+              </div>`;
+            }).join('')
+          : `<p style="color:var(--c-muted)">No hay turnos registrados.</p>`}`;
+      Admin.openModal('modal-customer-detail');
+    } catch(_) {
+      Admin.toast('Error al cargar historial del cliente.', 'error');
+    }
+  }
+
+  loadCustomers();
+</script>
+</body>
+</html>

@@ -22,7 +22,7 @@
         <div><h1>Servicios</h1><p>Listado de todos los servicios del catálogo.</p></div>
       </div>
 
-      <div style="background:#FEF3C7;border:1px solid #FCD34D;border-radius:var(--radius-sm);padding:14px 18px;margin-bottom:20px;font-size:.88rem;color:#92400E">
+      <div class="info-banner">
         <strong>Nota:</strong> Esta es una vista de solo lectura del catálogo de servicios. En una versión con backend, podrías crear, editar y eliminar servicios desde acá.
       </div>
 
@@ -68,18 +68,18 @@
     document.getElementById("services-admin-tbody").innerHTML = svcs.map(s => `
       <tr>
         <td>
-          <div style="display:flex;align-items:center;gap:12px">
-            <img src="${s.image}" alt="" style="width:44px;height:44px;border-radius:8px;object-fit:cover">
+          <div class="table-svc-cell">
+            <img src="${s.image}" alt="" class="table-svc-img">
             <div>
               <strong>${s.name}</strong>
-              <div style="font-size:.8rem;color:var(--c-muted);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.description}</div>
+              <div class="table-svc-desc">${s.description}</div>
             </div>
           </div>
         </td>
         <td>${Utils.getCategoryLabel(s.category)}</td>
-        <td>${s.duration} min <small style="color:var(--c-muted)">+${s.buffer}m</small></td>
-        <td style="font-weight:700">${Utils.formatPrice(s.price)}</td>
-        <td>${s.popular ? '<span class="badge" style="background:var(--c-gold);color:#fff">★ Popular</span>' : '—'}</td>
+        <td>${s.duration} min <small class="text-muted">+${s.buffer}m</small></td>
+        <td class="table-price">${Utils.formatPrice(s.price)}</td>
+        <td>${s.popular ? '<span class="badge badge-gold">★ Popular</span>' : '—'}</td>
         <td><span class="badge ${s.active ? 'badge-active' : 'badge-inactive'}">${s.active ? 'Activo' : 'Inactivo'}</span></td>
       </tr>`).join("");
   }

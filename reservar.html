@@ -42,9 +42,9 @@
         <div class="wizard-panel" id="panel-2" role="tabpanel" aria-label="Paso 2: Elegí servicios">
           <div class="step-card">
             <h3>¿Qué servicios querés?</h3>
-            <p style="font-size:.88rem;color:var(--c-muted);margin-bottom:20px">Podés seleccionar más de uno.</p>
+            <p class="form-hint">Podés seleccionar más de uno.</p>
             <div id="service-choices"></div>
-            <div id="service-summary" style="margin-top:20px;padding:16px;background:var(--c-bg);border-radius:var(--radius-sm);"></div>
+            <div id="service-summary" class="service-summary-box"></div>
           </div>
           <div class="wizard-nav">
             <button class="btn btn-outline" onclick="Wizard.prev()">← Atrás</button>
@@ -56,7 +56,7 @@
         <div class="wizard-panel" id="panel-3" role="tabpanel" aria-label="Paso 3: Elegí profesional">
           <div class="step-card">
             <h3>¿Con quién querés atenderte?</h3>
-            <p style="font-size:.88rem;color:var(--c-muted);margin-bottom:20px">Podés elegir un profesional específico o el primero disponible.</p>
+            <p class="form-hint">Podés elegir un profesional específico o el primero disponible.</p>
             <div id="staff-choices"></div>
           </div>
           <div class="wizard-nav">
@@ -69,13 +69,13 @@
         <div class="wizard-panel" id="panel-4" role="tabpanel" aria-label="Paso 4: Elegí fecha y horario">
           <div class="step-card">
             <h3>Elegí fecha y horario</h3>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px">
+            <div class="grid-2">
               <div>
-                <h4 style="font-size:.88rem;font-weight:700;margin-bottom:14px;color:var(--c-muted);text-transform:uppercase;letter-spacing:.06em">Fecha</h4>
+                <h4 class="branch-section-label">Fecha</h4>
                 <div id="calendar-container"></div>
               </div>
               <div>
-                <h4 style="font-size:.88rem;font-weight:700;margin-bottom:14px;color:var(--c-muted);text-transform:uppercase;letter-spacing:.06em">Horarios disponibles</h4>
+                <h4 class="branch-section-label">Horarios disponibles</h4>
                 <div id="time-slots"></div>
               </div>
             </div>
@@ -90,7 +90,7 @@
         <div class="wizard-panel" id="panel-5" role="tabpanel" aria-label="Paso 5: Tus datos">
           <div class="step-card">
             <h3>Tus datos de contacto</h3>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+            <div class="grid-2">
               <div class="form-group">
                 <label class="form-label" for="cust-name">Nombre y apellido *</label>
                 <input type="text" id="cust-name" class="form-control" placeholder="Ej: María González" autocomplete="name" required>
@@ -101,12 +101,12 @@
                 <input type="tel" id="cust-phone" class="form-control" placeholder="Ej: 11 4567-8900" autocomplete="tel" required>
                 <div class="form-error">Ingresá un teléfono válido (mín. 8 dígitos).</div>
               </div>
-              <div class="form-group" style="grid-column:1/-1">
+              <div class="form-group col-full">
                 <label class="form-label" for="cust-email">Email *</label>
                 <input type="email" id="cust-email" class="form-control" placeholder="tu@email.com" autocomplete="email" required>
                 <div class="form-error">Ingresá un email válido.</div>
               </div>
-              <div class="form-group" style="grid-column:1/-1">
+              <div class="form-group col-full">
                 <label class="form-label" for="cust-notes">Notas adicionales (opcional)</label>
                 <textarea id="cust-notes" class="form-control" rows="3" placeholder="¿Alguna preferencia o consulta? Ej: tengo el cabello teñido, prefiero cierta técnica..."></textarea>
               </div>

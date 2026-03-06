@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Preguntas Frecuentes — Studio Hair</title>
+  <meta name="description" content="Respondemos las preguntas más frecuentes sobre Studio Hair: cómo reservar, cómo cancelar, medios de pago, tipos de cabello y más.">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div id="header-mount"></div>
+<main>
+  <div class="page-hero">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Ubicación"><a href="index.html">Inicio</a><span>›</span><span>FAQ</span></nav>
+      <h1>Preguntas frecuentes</h1>
+      <p>Las respuestas a las consultas más comunes de nuestros clientes.</p>
+    </div>
+  </div>
+  <section class="section">
+    <div class="container max-w-760">
+      <div id="faq-list"></div>
+      <hr class="divider">
+      <div class="text-center">
+        <p class="text-muted mb-20">¿No encontraste tu respuesta?</p>
+        <div class="btn-actions">
+          <a href="contacto.html" class="btn btn-outline">Escribinos</a>
+          <a href="reservar.html" class="btn btn-gold">Reservar turno</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<div id="footer-mount"></div>
+<div id="cta-float-mount"></div>
+<div id="cookie-mount"></div>
+<div id="toast-mount"></div>
+<script src="js/data.js"></script>
+<script src="js/components.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    Components.init("faq");
+    const list = document.getElementById("faq-list");
+    list.innerHTML = SH.faq.map((f, i) => `
+      <div class="faq-item" id="faq-item-${i}">
+        <button class="faq-question" onclick="toggleFaq(${i})" aria-expanded="false" aria-controls="faq-ans-${i}">
+          <span>${f.q}</span>
+          <span class="faq-icon" aria-hidden="true">+</span>
+        </button>
+        <div class="faq-answer" id="faq-ans-${i}" role="region">${f.a}</div>
+      </div>`).join("");
+  });
+
+  function toggleFaq(i) {
+    const item = document.getElementById("faq-item-" + i);
+    const btn  = item.querySelector(".faq-question");
+    const isOpen = item.classList.toggle("open");
+    btn.setAttribute("aria-expanded", isOpen);
+  }
+</script>
+</body>
+</html>

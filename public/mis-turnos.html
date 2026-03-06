@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis Turnos — Studio Hair</title>
+  <meta name="description" content="Consultá y gestioná tus turnos en Studio Hair. Ingresá tu email para ver tu historial de reservas.">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .mt-page { padding: 40px 0 80px; }
+    .mt-search-card {
+      background: var(--c-card);
+      border: 1px solid var(--c-border);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      max-width: 480px;
+      margin: 0 auto 32px;
+    }
+    .mt-search-card h2 { margin-bottom: 8px; }
+    .mt-search-card p { color: var(--c-muted); margin-bottom: 20px; font-size: .95rem; }
+    .search-row { display: flex; gap: 10px; }
+    .search-row input { flex: 1; }
+    .apt-grid { display: grid; gap: 16px; }
+    .apt-card {
+      background: var(--c-card);
+      border: 1px solid var(--c-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: box-shadow .2s;
+    }
+    .apt-card:hover { box-shadow: var(--shadow-md); }
+    .apt-card__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid var(--c-border);
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .apt-card__date { font-weight: 600; font-size: .95rem; }
+    .apt-card__time { font-size: 1.1rem; font-weight: 700; color: var(--c-accent); }
+    .apt-card__body { padding: 16px 20px; }
+    .apt-card__body p { margin: 4px 0; font-size: .9rem; line-height: 1.5; }
+    .apt-card__body strong { color: var(--c-text); }
+    .apt-card__footer {
+      padding: 12px 20px;
+      background: var(--c-bg);
+      border-top: 1px solid var(--c-border);
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .badge-apt {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: .78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    .badge-apt.PENDIENTE  { background: #fff3cd; color: #856404; }
+    .badge-apt.CONFIRMADO { background: #d1e7dd; color: #0a5c36; }
+    .badge-apt.CANCELADO  { background: #f8d7da; color: #58151c; }
+    .badge-apt.COMPLETADO { background: #cff4fc; color: #055160; }
+    .badge-apt.NO_SHOW    { background: #e2e3e5; color: #41464b; }
+    .mt-customer-header {
+      text-align: center;
+      padding: 20px 0 8px;
+      color: var(--c-muted);
+      font-size: .9rem;
+    }
+    .mt-customer-header strong { color: var(--c-text); font-size: 1.1rem; }
+    .mt-empty {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--c-muted);
+    }
+    .mt-cancelled-banner {
+      background: #d1e7dd;
+      color: #0a5c36;
+      padding: 14px 20px;
+      border-radius: var(--radius-md);
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+    @media (max-width: 600px) {
+      .search-row { flex-direction: column; }
+      .mt-search-card { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+<div id="header-mount"></div>
+
+<main>
+  <div class="page-hero">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Ubicación">
+        <a href="index.html">Inicio</a><span>›</span><span>Mis turnos</span>
+      </nav>
+      <h1>Mis turnos</h1>
+      <p>Consultá y gestioná tus reservas en Studio Hair.</p>
+    </div>
+  </div>
+
+  <section class="section mt-page">
+    <div class="container">
+
+      <!-- Mensaje de cancelación exitosa -->
+      <div id="cancelled-banner" class="mt-cancelled-banner" hidden>
+        Tu turno fue cancelado correctamente.
+      </div>
+
+      <!-- Formulario de búsqueda -->
+      <div id="search-section" class="mt-search-card">
+        <h2>Buscá tus turnos</h2>
+        <p>Ingresá el email con el que hiciste la reserva.</p>
+        <form id="search-form" novalidate>
+          <div class="form-group">
+            <label class="form-label" for="customer-email">Tu email de reserva</label>
+            <div class="search-row">
+              <input type="email" id="customer-email" class="form-control"
+                     placeholder="tu@email.com" required autocomplete="email">
+              <button type="submit" class="btn btn-primary" id="search-btn">Buscar</button>
+            </div>
+            <p id="search-error" class="form-hint" style="color:var(--c-error);display:none"></p>
+          </div>
+        </form>
+      </div>
+
+      <!-- Zona de carga -->
+      <div id="loading-section" hidden style="text-align:center;padding:48px 0">
+        <p style="color:var(--c-muted)">Buscando tus turnos...</p>
+      </div>
+
+      <!-- Resultados -->
+      <div id="results-section" hidden>
+        <div id="customer-header" class="mt-customer-header"></div>
+        <div id="appointments-list" class="apt-grid"></div>
+        <div style="text-align:center;margin-top:32px">
+          <button class="btn btn-outline btn-sm" id="new-search-btn">
+            Buscar con otro email
+          </button>
+          <a href="reservar.html" class="btn btn-primary btn-sm" style="margin-left:8px">
+            Reservar nuevo turno
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</main>
+
+<div id="cta-float-mount"></div>
+<div id="footer-mount"></div>
+<div id="cookie-mount"></div>
+<div id="toast-mount"></div>
+
+<script src="js/data.js"></script>
+<script src="js/components.js"></script>
+<script src="js/api.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    Components.init('mis-turnos');
+
+    // Detectar si viene de cancelación
+    const params = new URLSearchParams(location.search);
+    if (params.get('cancelled') === '1') {
+      document.getElementById('cancelled-banner').hidden = false;
+    }
+
+    // Pre-cargar email desde URL (viene del wizard)
+    const preEmail = params.get('email');
+    if (preEmail) {
+      document.getElementById('customer-email').value = preEmail;
+      searchAppointments(preEmail);
+    }
+
+    // Submit del formulario
+    document.getElementById('search-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const email = document.getElementById('customer-email').value.trim();
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showError('Ingresá un email válido');
+        return;
+      }
+      hideError();
+      await searchAppointments(email);
+    });
+
+    // Botón "nuevo email"
+    document.getElementById('new-search-btn').addEventListener('click', () => {
+      document.getElementById('results-section').hidden = true;
+      document.getElementById('search-section').hidden = false;
+      document.getElementById('customer-email').value = '';
+    });
+  });
+
+  function showError(msg) {
+    const el = document.getElementById('search-error');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  function hideError() {
+    document.getElementById('search-error').style.display = 'none';
+  }
+
+  async function searchAppointments(email) {
+    document.getElementById('search-section').hidden = true;
+    document.getElementById('loading-section').hidden = false;
+    document.getElementById('results-section').hidden = true;
+
+    try {
+      const data = await Api.myAppointments(email);
+
+      document.getElementById('loading-section').hidden = true;
+
+      if (!data.customer && (!data.appointments || !data.appointments.length)) {
+        document.getElementById('customer-header').innerHTML =
+          `<p>No encontramos turnos para <strong>${email}</strong>.</p>`;
+        document.getElementById('appointments-list').innerHTML = '';
+        document.getElementById('results-section').hidden = false;
+        return;
+      }
+
+      const name = data.customer?.name || email;
+      document.getElementById('customer-header').innerHTML =
+        `Turnos de <strong>${name}</strong> — ${data.appointments.length} reserva${data.appointments.length !== 1 ? 's' : ''}`;
+
+      document.getElementById('appointments-list').innerHTML =
+        data.appointments.length
+          ? data.appointments.map(renderCard).join('')
+          : `<div class="mt-empty"><p>No hay turnos registrados aún.</p><a href="reservar.html" class="btn btn-primary" style="margin-top:16px">Reservar mi primer turno</a></div>`;
+
+      document.getElementById('results-section').hidden = false;
+    } catch (err) {
+      document.getElementById('loading-section').hidden = true;
+      document.getElementById('search-section').hidden = false;
+      showError(err?.error || 'No se pudo consultar los turnos. Intentá nuevamente.');
+    }
+  }
+
+  function renderCard(apt) {
+    const dateObj = new Date(apt.date);
+    const dateStr = dateObj.toLocaleDateString('es-AR', {
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+      timeZone: 'UTC',
+    });
+
+    const services  = (apt.services || []).map(s => s.name).join(', ');
+    const branch    = apt.branch?.name || '—';
+    const profName  = apt.professional?.name || 'A confirmar';
+    const status    = apt.status;
+    const price     = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(Number(apt.totalPrice));
+
+    const canCancel = ['PENDIENTE', 'CONFIRMADO'].includes(status);
+
+    return `
+      <div class="apt-card" data-id="${apt.id}">
+        <div class="apt-card__header">
+          <div>
+            <div class="apt-card__date">${dateStr}</div>
+            <div class="apt-card__time">${apt.startTime} hs</div>
+          </div>
+          <span class="badge-apt ${status}" title="${status}">${statusLabel(status)}</span>
+        </div>
+        <div class="apt-card__body">
+          <p><strong>Servicios:</strong> ${services}</p>
+          <p><strong>Sucursal:</strong> ${branch}</p>
+          <p><strong>Peluquero:</strong> ${profName}</p>
+          <p><strong>Duración aprox.:</strong> ${apt.totalMin} min &nbsp;·&nbsp; <strong>Total:</strong> ${price}</p>
+        </div>
+        <div class="apt-card__footer">
+          ${canCancel ? `
+            <button class="btn btn-danger btn-sm" onclick="cancelTurno('${apt.cancelToken}', this)">
+              Cancelar turno
+            </button>
+            <span style="font-size:.8rem;color:var(--c-muted)">Podés cancelar hasta 2 horas antes</span>
+          ` : `
+            <span style="font-size:.85rem;color:var(--c-muted)">
+              ${status === 'COMPLETADO' ? '¡Gracias por visitarnos!' : status === 'CANCELADO' ? 'Este turno fue cancelado.' : ''}
+            </span>
+          `}
+        </div>
+      </div>`;
+  }
+
+  function statusLabel(s) {
+    const map = {
+      PENDIENTE:  'Pendiente',
+      CONFIRMADO: 'Confirmado',
+      CANCELADO:  'Cancelado',
+      COMPLETADO: 'Completado',
+      NO_SHOW:    'No asistió',
+    };
+    return map[s] || s;
+  }
+
+  async function cancelTurno(token, btn) {
+    if (!confirm('¿Confirmás que querés cancelar este turno?')) return;
+    btn.disabled = true;
+    btn.textContent = 'Cancelando...';
+
+    try {
+      // La API redirige tras cancelar, así que la manejamos via fetch manual
+      const res = await fetch(`/api/appointments/cancel/${token}`, {
+        redirect: 'manual',
+      });
+
+      if (res.ok || res.status === 0 || res.type === 'opaqueredirect') {
+        // Cancelado exitosamente
+        const card   = btn.closest('.apt-card');
+        const badge  = card.querySelector('.badge-apt');
+        const footer = card.querySelector('.apt-card__footer');
+
+        badge.textContent = 'Cancelado';
+        badge.className   = 'badge-apt CANCELADO';
+        footer.innerHTML  = `<span style="font-size:.85rem;color:var(--c-muted)">Este turno fue cancelado.</span>`;
+
+        Components.toast('Turno cancelado correctamente.', 'success');
+      } else {
+        const data = await res.json().catch(() => ({}));
+        throw data;
+      }
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = 'Cancelar turno';
+      Components.toast(err?.error || 'No se pudo cancelar el turno.', 'error');
+    }
+  }
+</script>
+</body>
+</html>
