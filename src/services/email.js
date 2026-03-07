@@ -2,9 +2,24 @@ import nodemailer from 'nodemailer';
 
 let transporter = null;
 
+function isSmtpConfigured() {
+  return (
+    process.env.SMTP_USER &&
+    !process.env.SMTP_USER.startsWith('COMPLETAR_') &&
+    process.env.SMTP_USER !== 'tu-email@gmail.com' &&
+    process.env.SMTP_PASS &&
+    !process.env.SMTP_PASS.startsWith('COMPLETAR_')
+  );
+}
+
 function getTransporter() {
-  if (!process.env.SMTP_USER || process.env.SMTP_USER === 'tu-email@gmail.com') {
-    return null; // SMTP no configurado, emails deshabilitados
+  if (!isSmtpConfigured()) {
+    const level = process.env.NODE_ENV === 'production' ? 'error' : 'warn';
+    console[level](
+      '[EMAIL] SMTP no configurado (SMTP_USER/SMTP_PASS ausentes). ' +
+      'Los emails NO se enviarán. Revisá las variables de entorno.'
+    );
+    return null;
   }
   if (!transporter) {
     transporter = nodemailer.createTransport({
@@ -21,13 +36,33 @@ function getTransporter() {
 }
 
 /**
+ * Verifica la conexión SMTP al arrancar el servidor.
+ * Llama a esta función desde server.js para detectar errores de config temprano.
+ */
+export async function verifySmtpConnection() {
+  if (!isSmtpConfigured()) {
+    console.warn('[EMAIL] SMTP no configurado — envío de emails deshabilitado.');
+    return false;
+  }
+  try {
+    const t = getTransporter();
+    await t.verify();
+    console.log('[EMAIL] Conexión SMTP verificada OK (host:', process.env.SMTP_HOST || 'smtp.gmail.com', ')');
+    return true;
+  } catch (err) {
+    console.error('[EMAIL] Fallo al verificar conexión SMTP:', err.message);
+    return false;
+  }
+}
+
+/**
  * Email de confirmación de turno al cliente.
  * Se llama de forma asíncrona (no bloquea la respuesta HTTP).
  */
 export async function sendConfirmationEmail({ to, customerName, appointment, cancelToken }) {
   const t = getTransporter();
   if (!t) {
-    console.log('[EMAIL] SMTP no configurado — email omitido para:', to);
+    console.error('[EMAIL] sendConfirmationEmail: email NO enviado a', to, '— SMTP sin configurar.');
     return;
   }
 
@@ -106,7 +141,7 @@ export async function sendConfirmationEmail({ to, customerName, appointment, can
 // ─── Email de bienvenida al registrarse ───────────────────────────────────────
 export async function sendWelcomeEmail({ to, customerName }) {
   const t = getTransporter();
-  if (!t) { console.log('[EMAIL] SMTP no configurado — bienvenida omitida para:', to); return; }
+  if (!t) { console.error('[EMAIL] sendWelcomeEmail: email NO enviado a', to, '— SMTP sin configurar.'); return; }
 
   await t.sendMail({
     from:    process.env.EMAIL_FROM,
@@ -135,7 +170,7 @@ export async function sendWelcomeEmail({ to, customerName }) {
 // ─── Email de recuperación de contraseña ─────────────────────────────────────
 export async function sendPasswordResetEmail({ to, customerName, resetUrl }) {
   const t = getTransporter();
-  if (!t) { console.log('[EMAIL] SMTP no configurado — reset omitido para:', to); return; }
+  if (!t) { console.error('[EMAIL] sendPasswordResetEmail: email NO enviado a', to, '— SMTP sin configurar.'); return; }
 
   await t.sendMail({
     from:    process.env.EMAIL_FROM,

@@ -15,6 +15,7 @@ import professionalRoutes from './routes/professionals.js';
 import availabilityRoutes from './routes/availability.js';
 import appointmentRoutes  from './routes/appointments.js';
 import adminRoutes        from './routes/admin/index.js';
+import { verifySmtpConnection } from './services/email.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -120,12 +121,14 @@ app.use((err, _req, res, _next) => {
 // En Vercel el servidor es serverless; exportamos el app en vez de escuchar.
 if (process.env.VERCEL !== '1') {
   const PORT = Number(process.env.PORT) || 3000;
-  app.listen(PORT, () => {
-    console.log(`\n🚀 Studio Hair corriendo en http://localhost:${PORT}`);
+  app.listen(PORT, async () => {
+    console.log(`\n Studio Hair corriendo en http://localhost:${PORT}`);
     console.log(`   Frontend: http://localhost:${PORT}`);
     console.log(`   Admin:    http://localhost:${PORT}/admin/login.html`);
     console.log(`   API:      http://localhost:${PORT}/api/health`);
-    console.log(`   DB:       ${process.env.DATABASE_URL ? '✓ configurada' : '✗ DATABASE_URL no encontrada'}\n`);
+    console.log(`   DB:       ${process.env.DATABASE_URL ? '✓ configurada' : '✗ DATABASE_URL no encontrada'}`);
+    await verifySmtpConnection();
+    console.log();
   });
 }
 

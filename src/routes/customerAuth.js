@@ -147,9 +147,20 @@ router.post('/forgot-password', async (req, res, next) => {
       data:  { passwordResetToken: token, passwordResetExpiry: expiry },
     });
 
-    const resetUrl = `${process.env.BASE_URL}/login.html?reset=${token}`;
+    const baseUrl = process.env.BASE_URL;
+    if (!baseUrl || baseUrl.includes('localhost')) {
+      console.warn(
+        '[AUTH] forgot-password: BASE_URL es "' + baseUrl + '". ' +
+        'En producción debe apuntar al dominio real (ej: https://studiohair.vercel.app). ' +
+        'El link del email será incorrecto.'
+      );
+    }
+
+    const resetUrl = `${baseUrl}/login.html?reset=${token}`;
+    console.log('[AUTH] forgot-password: enviando reset a', customer.email, '| expiry:', expiry.toISOString());
+
     sendPasswordResetEmail({ to: customer.email, customerName: customer.name, resetUrl })
-      .catch(err => console.error('[EMAIL] Error reset password:', err.message));
+      .catch(err => console.error('[EMAIL] Error al enviar reset password a', customer.email, ':', err.message));
 
     res.json({ ok: true });
   } catch (err) {
