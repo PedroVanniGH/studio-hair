@@ -1061,6 +1061,10 @@ textarea.form-control { resize: vertical; min-height: 140px; }
   .header-nav { display: none; }
   .btn-wa-header span { display: none; }
   .hamburger { display: flex; }
+  /* Ocultar botones del header en mobile — están en el menú móvil */
+  #header-user-area { display: none; }
+  .header-actions .btn-primary,
+  .header-actions .btn-outline { display: none; }
   .section, .section-sm { padding: 56px 0; }
   .hero h1 { font-size: clamp(2rem,7vw,3.5rem); }
   .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
