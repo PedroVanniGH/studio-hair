@@ -88,7 +88,12 @@
     }
     @media (max-width: 600px) {
       .search-row { flex-direction: column; }
-      .mt-search-card { padding: 20px; }
+      .search-row button { width: 100%; }
+      .mt-search-card { padding: 20px 16px; }
+      .apt-card__header { flex-direction: column; align-items: flex-start; gap: 4px; }
+      .apt-card__footer { flex-direction: column; align-items: stretch; }
+      .apt-card__footer button,
+      .apt-card__footer a { width: 100%; text-align: center; justify-content: center; }
     }
   </style>
 </head>

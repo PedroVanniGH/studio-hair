@@ -70,12 +70,43 @@ async function updatePendingBadge() {
   } catch (_) {}
 }
 
-// Auto-inject sidebar + setup logout
+// Auto-inject sidebar + setup logout + hamburger
 document.addEventListener("DOMContentLoaded", () => {
   const mount = document.getElementById("sidebar-mount");
   if (mount) {
     mount.outerHTML = getSidebarHTML();
     updatePendingBadge();
+  }
+
+  // ── Hamburger sidebar toggle ──────────────────────────────
+  const topbar  = document.querySelector('.admin-topbar');
+  const sidebar = document.getElementById('sidebar');
+  if (topbar && sidebar) {
+    // Overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'sidebar-overlay';
+    overlay.id = 'sidebar-overlay';
+    document.body.appendChild(overlay);
+
+    // Hamburger button (solo si no está ya en el DOM)
+    if (!document.getElementById('hamburger-btn')) {
+      const btn = document.createElement('button');
+      btn.className = 'hamburger-btn';
+      btn.id = 'hamburger-btn';
+      btn.setAttribute('aria-label', 'Abrir menú');
+      btn.innerHTML = `<svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>`;
+      const firstChild = topbar.firstElementChild;
+      const wrapper = document.createElement('div');
+      wrapper.style.cssText = 'display:flex;align-items:center;gap:12px';
+      topbar.insertBefore(wrapper, firstChild);
+      wrapper.appendChild(btn);
+      wrapper.appendChild(firstChild);
+    }
+
+    function openSidebar()  { sidebar.classList.add('open');    overlay.classList.add('visible');    document.body.style.overflow = 'hidden'; }
+    function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('visible'); document.body.style.overflow = ''; }
+    document.getElementById('hamburger-btn')?.addEventListener('click', openSidebar);
+    overlay.addEventListener('click', closeSidebar);
   }
 
   // Logout button

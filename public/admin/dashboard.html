@@ -60,7 +60,12 @@
 
   <!-- TOPBAR -->
   <header class="admin-topbar" role="banner">
-    <div class="topbar-title">Dashboard</div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <button class="hamburger-btn" id="hamburger-btn" aria-label="Abrir menú">
+        <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>
+      </button>
+      <div class="topbar-title">Dashboard</div>
+    </div>
     <div class="topbar-actions">
       <a href="turnos.html" class="btn btn-gold btn-sm">+ Nuevo turno</a>
       <div class="topbar-user">
@@ -189,14 +194,23 @@
       <button class="btn btn-outline" onclick="Admin.closeModal('modal-apt-detail')">Cerrar</button>
     </div>
   </div>
-</div>
+</div><!-- .admin-layout -->
 
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
 <div class="toast-container" id="toast-container" aria-live="polite"></div>
 
 <script src="../js/data.js"></script>
 <script src="../js/admin.js"></script>
 <script src="shared.js"></script>
 <script>
+  // ── Hamburger sidebar toggle ──────────────────────────────
+  const hamburgerBtn   = document.getElementById('hamburger-btn');
+  const sidebar        = document.getElementById('sidebar');
+  const sidebarOverlay = document.getElementById('sidebar-overlay');
+  function openSidebar()  { sidebar.classList.add('open');    sidebarOverlay.classList.add('visible');    document.body.style.overflow = 'hidden'; }
+  function closeSidebar() { sidebar.classList.remove('open'); sidebarOverlay.classList.remove('visible'); document.body.style.overflow = ''; }
+  hamburgerBtn?.addEventListener('click', openSidebar);
+  sidebarOverlay?.addEventListener('click', closeSidebar);
   Admin.requireAuth();
 
   // Conteos estáticos del catálogo (datos semilla de data.js)

@@ -510,6 +510,31 @@ textarea.form-control { resize: vertical; min-height: 100px; }
 .grid-2--dash  { gap: 24px; margin-bottom: 24px; }
 .grid-3--dash  { gap: 24px; }
 
+/* ── LAYOUT GRIDS (usados en dashboard y otras páginas admin) */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+
+/* ── HAMBURGER BUTTON (mobile) ───────────────────────────── */
+.hamburger-btn {
+  display: none;
+  align-items: center; justify-content: center;
+  width: 40px; height: 40px;
+  border-radius: var(--radius-sm);
+  background: var(--c-bg);
+  border: 1px solid var(--c-border);
+  cursor: pointer; flex-shrink: 0;
+}
+.hamburger-btn svg { width: 20px; height: 20px; stroke: var(--c-text); }
+
+/* ── SIDEBAR OVERLAY (mobile) ────────────────────────────── */
+.sidebar-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 790;
+}
+.sidebar-overlay.visible { display: block; }
+
 /* ── TURNOS TABLE LOADING ROW ────────────────────────────── */
 .td-loading { text-align: center; padding: 32px; color: var(--c-muted); }
 
@@ -525,14 +550,22 @@ textarea.form-control { resize: vertical; min-height: 100px; }
 }
 
 /* ── RESPONSIVE ADMIN ────────────────────────────────────── */
+html, body { overflow-x: hidden; }
+.btn-full { width: 100%; justify-content: center; }
+
 @media (max-width: 1100px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 768px) {
   .sidebar { transform: translateX(-100%); }
   .sidebar.open { transform: translateX(0); }
   .admin-main { margin-left: 0; }
-  .admin-topbar { left: 0; }
+  .admin-topbar { left: 0; padding: 0 16px; }
   .admin-page { padding: 20px 16px; }
   .kpi-grid { grid-template-columns: repeat(2, 1fr); }
   .form-row { grid-template-columns: 1fr; }
+  .hamburger-btn { display: flex; }
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .col-span-2 { grid-column: auto; }
+  .topbar-title { font-size: 1rem; }
+  .topbar-actions .topbar-user span { display: none; }
 }
 @media (max-width: 480px) { .kpi-grid { grid-template-columns: 1fr; } }

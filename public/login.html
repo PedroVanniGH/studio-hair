@@ -158,15 +158,21 @@
   document.addEventListener('DOMContentLoaded', async () => {
     Components.init('login');
 
+    const params       = new URLSearchParams(location.search);
+    const redirectTo   = params.get('redirect') || 'mis-turnos.html';
+    const msgParam     = params.get('msg');
+    const resetToken   = params.get('reset');
+
+    // Mostrar msg de redirección si viene de otra página (ej: reservar sin sesión)
+    if (msgParam) showMessage(decodeURIComponent(msgParam), 'error');
+
     // Si ya está logueado, redirigir
     try {
       const me = await Api.auth.me();
-      if (me) { window.location.replace('mis-turnos.html'); return; }
+      if (me) { window.location.replace(redirectTo); return; }
     } catch {}
 
     // ¿Viene con token de reset?
-    const params = new URLSearchParams(location.search);
-    const resetToken = params.get('reset');
     if (resetToken) { showPanel('reset'); }
 
     // Tabs
@@ -184,7 +190,7 @@
       clearMessage();
       try {
         await Api.auth.login(email, password);
-        window.location.replace('mis-turnos.html');
+        window.location.replace(redirectTo);
       } catch (err) {
         showMessage(err?.error || 'Error al iniciar sesión', 'error');
         btn.disabled = false; btn.textContent = 'Ingresar';
@@ -203,7 +209,7 @@
       clearMessage();
       try {
         await Api.auth.register({ name, email, phone: phone || undefined, password });
-        window.location.replace('mis-turnos.html');
+        window.location.replace(redirectTo);
       } catch (err) {
         const msg = typeof err?.error === 'object'
           ? Object.values(err.error).flat().join(', ')

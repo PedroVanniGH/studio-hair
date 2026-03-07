@@ -489,6 +489,14 @@ const Wizard = (() => {
 
   // ── Init ─────────────────────────────────────────────────
   async function init() {
+    // Verificar sesión activa — si no está logueado, redirigir al login
+    try {
+      await Api.auth.me();
+    } catch (_) {
+      window.location.href = '/login.html?redirect=reservar.html&msg=Para+reservar+un+turno+necesit%C3%A1s+iniciar+sesi%C3%B3n.';
+      return;
+    }
+
     renderSteps();
     showPanel(1);
     await Promise.all([loadServiceMapping(), renderStep1()]);
