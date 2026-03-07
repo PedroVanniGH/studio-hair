@@ -20,6 +20,10 @@ import { verifySmtpConnection } from './services/email.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 
+// Necesario en Vercel (y cualquier proxy inverso) para que express-rate-limit
+// lea correctamente la IP real del cliente desde X-Forwarded-For
+app.set('trust proxy', 1);
+
 // ─── Seguridad ────────────────────────────────────────────────────────────────
 app.use(
   helmet({

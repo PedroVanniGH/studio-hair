@@ -60,9 +60,12 @@ router.post('/register', async (req, res, next) => {
 
     res.cookie('sh_client_token', token, COOKIE_OPTS());
 
-    // Email de bienvenida (asíncrono)
-    sendWelcomeEmail({ to: customer.email, customerName: customer.name })
-      .catch(err => console.error('[EMAIL] Error bienvenida:', err.message));
+    // Email de bienvenida — awaited para que Vercel no corte la función antes de enviarlo
+    try {
+      await sendWelcomeEmail({ to: customer.email, customerName: customer.name });
+    } catch (err) {
+      console.error('[EMAIL] Error bienvenida:', err.message);
+    }
 
     res.status(201).json({ ok: true, name: customer.name, email: customer.email });
   } catch (err) {
@@ -159,8 +162,12 @@ router.post('/forgot-password', async (req, res, next) => {
     const resetUrl = `${baseUrl}/login.html?reset=${token}`;
     console.log('[AUTH] forgot-password: enviando reset a', customer.email, '| expiry:', expiry.toISOString());
 
-    sendPasswordResetEmail({ to: customer.email, customerName: customer.name, resetUrl })
-      .catch(err => console.error('[EMAIL] Error al enviar reset password a', customer.email, ':', err.message));
+    try {
+      await sendPasswordResetEmail({ to: customer.email, customerName: customer.name, resetUrl });
+      console.log('[EMAIL] Reset enviado OK a', customer.email);
+    } catch (err) {
+      console.error('[EMAIL] Error al enviar reset password a', customer.email, ':', err.message);
+    }
 
     res.json({ ok: true });
   } catch (err) {
